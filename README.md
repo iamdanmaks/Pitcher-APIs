@@ -7,37 +7,37 @@ Analyser-API endpoints:
     Принимает тело запроса следующего формата: 
     ```json
     {
-         "username": "" (string), 
-         "password": "" (string), 
-         "isCompany": true/false (bool), 
-         "email": "" (string), 
-         "fullname": "" (string) 
+         "username": "", 
+         "password": "", 
+         "isCompany": true/false, 
+         "email": "", 
+         "fullname": "" 
     }
     ```
 
     Возвращает, если всё правильно:
     ```json
     {
-        'response': True,
-        'message': 'User <> was created',
-        'access_token': access_token,
-        'refresh_token': refresh_token
+        "response": true,
+        "message": "User <> was created",
+        "access_token": "",
+        "refresh_token": ""
     }
     ```
     
     Возвращает, если уже существует:
     ```json
     {
-        'response': False,
-        'message': 'User <> already exists'
+        "response": false,
+        "message": "User <> already exists"
     }
     ```
 
     Если, ошибка на стороне сервера:
     ```json
     {
-        'response': False, 
-         'message': 'Something went wrong'
+        "response": false, 
+        "message": "Something went wrong"
     }
     ```
 
@@ -53,10 +53,10 @@ Analyser-API endpoints:
     Возвращает, если всё правильно:
     ```json
     {
-        'response': True,
-        'message': ‘Logged in as <>’,
-        'access_token': access_token,
-        'refresh_token': refresh_token
+        "response": true,
+        "message": "Logged in as <>",
+        "access_token": "",
+        "refresh_token": ""
     }
     ```
 
@@ -64,8 +64,8 @@ Analyser-API endpoints:
     ```json
     {
 
-          'response': False,
-          'message': 'User <> doesn\'t exist'
+          "response": false,
+          "message": "User <> doesn\'t exist"
 
     }
     ```
@@ -73,8 +73,8 @@ Analyser-API endpoints:
     Если, ошибка на стороне сервера:
     ```json
     {
-        'response': False, 
-         'message': 'Something went wrong'
+        "response": false, 
+        "message": "Something went wrong"
     }
     ```
     

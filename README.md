@@ -4,4 +4,10 @@
  
  Analyser-API endpoints:
  1. http://localhost:5080/registration (метод POST)
-    Принимает тело запроса селдующего формата: {"username": "" (string), "password": "" (string), "isCompany": 0/1 (bool), "email": "" (string), "fullname": "" (string)}
+    Принимает тело запроса селдующего формата: {
+                                                 "username": "" (string), 
+                                                 "password": "" (string), 
+                                                 "isCompany": 0/1 (bool), 
+                                                 "email": "" (string), 
+                                                 "fullname": "" (string)
+                                                }

@@ -5,7 +5,7 @@ Analyser-API endpoints:
 
 1. [http://localhost:5080/registration](http://localhost:5080/registration) (метод **POST**). 
     Принимает тело запроса следующего формата: 
-    '''json
+    ```json
     {
          "username": "" (string), 
          "password": "" (string), 
@@ -13,7 +13,7 @@ Analyser-API endpoints:
          "email": "" (string), 
          "fullname": "" (string) 
     }
-    '''
+    ```
 
     Возвращает, если всё правильно:
     '''json

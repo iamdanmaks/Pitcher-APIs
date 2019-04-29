@@ -1,0 +1,8 @@
+feedparser==5.2.1
+pytrends==4.4.0
+sanic==18.12.0
+requests==2.21.0
+twitterscraper==0.9.3
+play_scraper==0.5.3
+newspaper3k==0.2.8
+newspaper==0.1.0.7

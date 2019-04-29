@@ -12,6 +12,8 @@ Analyser-API endpoints:
          "email": "" (string), 
          "fullname": "" (string) 
     }
+
+
     Возвращает, если всё правильно:
     {
         'response': True,
@@ -19,22 +21,30 @@ Analyser-API endpoints:
         'access_token': access_token,
         'refresh_token': refresh_token
     }
+
+
     Возвращает, если уже существует:
     {
         'response': False,
         'message': 'User <> already exists'
     }
+
+
     Если, ошибка на стороне сервера:
     {
         'response': False, 
          'message': 'Something went wrong'
     }
+
+
 2. [http://localhost:5080/](http://localhost:5080/registration)login (метод **POST**). 
     Принимает тело запроса следующего формата: 
     {
          "user": "" (string), 
          "user_password": "" (string)
     }
+
+
     Возвращает, если всё правильно:
     {
         'response': True,
@@ -42,6 +52,8 @@ Analyser-API endpoints:
         'access_token': access_token,
         'refresh_token': refresh_token
     }
+
+
     Возвращает, если не существует:
     {
 
@@ -49,15 +61,21 @@ Analyser-API endpoints:
           'message': 'User <> doesn\'t exist'
 
     }
+    
     Если, ошибка на стороне сервера:
     {
         'response': False, 
          'message': 'Something went wrong'
     }
-3. [http://localhost:5080](http://localhost:5080/registration)/logout/access (метод: **POST**)
     
-1. [http://localhost:5080](http://localhost:5080/registration)/logout/refresh (метод: **POST**)
-2. [http://localhost:5080](http://localhost:5080/registration)/token/refresh (метод: **POST**)
-3. [http://localhost:5080](http://localhost:5080/registration)/users (метод: **GET**)
-4. [http://localhost:5080](http://localhost:5080/registration)/users (метод: **DELETE**)
+3. [http://localhost:5080](http://localhost:5080/registration)/logout/access (метод: **POST**)
+    Нужно передать в хэдере запроса access token.
+4. [http://localhost:5080](http://localhost:5080/registration)/logout/refresh (метод: **POST**)
+    Нужно передать в хэдере запроса refresh token.
+5. [http://localhost:5080](http://localhost:5080/registration)/token/refresh (метод: **POST**)
+    Нужно передать в хэдере запроса refresh token.
+6. [http://localhost:5080](http://localhost:5080/registration)/users (метод: **GET**)
+    Возвращает краткую информацию по всем пользователям.
+7. [http://localhost:5080](http://localhost:5080/registration)/users (метод: **DELETE**)
+    Удаляет всех пользователей.
 

@@ -41,7 +41,7 @@ Analyser-API endpoints:
     }
     ```
 
-2. [http://localhost:5080/](http://localhost:5080/registration)login (метод **POST**). 
+2. [http://localhost:5080/login] (метод **POST**). 
     Принимает тело запроса следующего формата: 
     ```json
     {
@@ -78,14 +78,86 @@ Analyser-API endpoints:
     }
     ```
     
-3. [http://localhost:5080](http://localhost:5080/registration)/logout/access (метод: **POST**)
+3. [http://localhost:5080/logout/access] (метод: **POST**)
+    
     Нужно передать в хэдере запроса access token.
-4. [http://localhost:5080](http://localhost:5080/registration)/logout/refresh (метод: **POST**)
+    
+    Возвращает, если токен существует и не в чёрном списке:
+    ```json
+    {
+        "response": true, 
+        "message": "Access token has been revoked"
+    }
+    ```
+    
+    Если, ошибка на стороне сервера:
+    ```json
+    {
+        "response": false, 
+        "message": "Something went wrong"
+    }
+    ```
+    
+4. [http://localhost:5080/logout/refresh] (метод: **POST**)
+    
     Нужно передать в хэдере запроса refresh token.
-5. [http://localhost:5080](http://localhost:5080/registration)/token/refresh (метод: **POST**)
+    
+    Возвращает, если токен существует и не в чёрном списке:
+    ```json
+    {
+        "response": true, 
+        "message": "Refresh token has been revoked"
+    }
+    ```
+    
+    Если, ошибка на стороне сервера:
+    ```json
+    {
+        "response": false, 
+        "message": "Something went wrong"
+    }
+    ```
+    
+5. [http://localhost:5080/token/refresh] (метод: **POST**)
+    
     Нужно передать в хэдере запроса refresh token.
-6. [http://localhost:5080](http://localhost:5080/registration)/users (метод: **GET**)
+    ```json
+    {
+        "access_token": ""
+    }
+    ```
+6. [http://localhost:5080/users] (метод: **GET**)
+    
     Возвращает краткую информацию по всем пользователям.
-7. [http://localhost:5080](http://localhost:5080/registration)/users (метод: **DELETE**)
+    
+    Возвращает если всё в порядке:
+    ```json
+    {
+        "users": [
+            {
+                "username": "",
+                "fullname": "",
+                "isCompany": ""
+            },...
+        ]
+    }
+    ```
+    
+7. [http://localhost:5080/users] (метод: **DELETE**)
+    
     Удаляет всех пользователей.
-
+    
+    Возвращает если всё в порядке:
+    ```json
+        "response": true,
+        "message": "<> row(s) deleted"
+    ```
+    
+    Если, ошибка на стороне сервера:
+    ```json
+    {
+        "response": false, 
+        "message": "Something went wrong"
+    }
+    ```
+    

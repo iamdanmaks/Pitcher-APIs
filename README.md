@@ -41,7 +41,7 @@ Analyser-API endpoints:
     }
     ```
 
-2. [http://localhost:5080/login] (метод **POST**). 
+2. [http://localhost:5080/login](http://localhost:5080/login) (метод **POST**). 
     Принимает тело запроса следующего формата: 
     ```json
     {
@@ -78,7 +78,7 @@ Analyser-API endpoints:
     }
     ```
     
-3. [http://localhost:5080/logout/access] (метод: **POST**)
+3. [http://localhost:5080/logout/access](http://localhost:5080/logout/access) (метод: **POST**)
     
     Нужно передать в хэдере запроса access token.
     
@@ -98,7 +98,7 @@ Analyser-API endpoints:
     }
     ```
     
-4. [http://localhost:5080/logout/refresh] (метод: **POST**)
+4. [http://localhost:5080/logout/refresh](http://localhost:5080/logout/refresh) (метод: **POST**)
     
     Нужно передать в хэдере запроса refresh token.
     
@@ -118,7 +118,7 @@ Analyser-API endpoints:
     }
     ```
     
-5. [http://localhost:5080/token/refresh] (метод: **POST**)
+5. [http://localhost:5080/token/refresh](http://localhost:5080/token/refresh) (метод: **POST**)
     
     Нужно передать в хэдере запроса refresh token.
     ```json
@@ -126,7 +126,7 @@ Analyser-API endpoints:
         "access_token": ""
     }
     ```
-6. [http://localhost:5080/users] (метод: **GET**)
+6. [http://localhost:5080/users](http://localhost:5080/users) (метод: **GET**)
     
     Возвращает краткую информацию по всем пользователям.
     
@@ -143,7 +143,7 @@ Analyser-API endpoints:
     }
     ```
     
-7. [http://localhost:5080/users] (метод: **DELETE**)
+7. [http://localhost:5080/users](http://localhost:5080/users) (метод: **DELETE**)
     
     Удаляет всех пользователей.
     

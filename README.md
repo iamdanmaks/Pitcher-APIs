@@ -9,66 +9,74 @@ Analyser-API endpoints:
     {
          "username": "" (string), 
          "password": "" (string), 
-         "isCompany": 0/1 (bool), 
+         "isCompany": true/false (bool), 
          "email": "" (string), 
          "fullname": "" (string) 
     }
     ```
 
     Возвращает, если всё правильно:
-    '''json
+    ```json
     {
         'response': True,
         'message': 'User <> was created',
         'access_token': access_token,
         'refresh_token': refresh_token
     }
-    '''
+    ```
     
     Возвращает, если уже существует:
+    ```json
     {
         'response': False,
         'message': 'User <> already exists'
     }
-
+    ```
 
     Если, ошибка на стороне сервера:
+    ```json
     {
         'response': False, 
          'message': 'Something went wrong'
     }
-
+    ```
 
 2. [http://localhost:5080/](http://localhost:5080/registration)login (метод **POST**). 
     Принимает тело запроса следующего формата: 
+    ```json
     {
          "user": "" (string), 
          "user_password": "" (string)
     }
-
+    ```
 
     Возвращает, если всё правильно:
+    ```json
     {
         'response': True,
         'message': ‘Logged in as <>’,
         'access_token': access_token,
         'refresh_token': refresh_token
     }
-
+    ```
 
     Возвращает, если не существует:
+    ```json
     {
 
           'response': False,
           'message': 'User <> doesn\'t exist'
 
     }
+    ```
     
     Если, ошибка на стороне сервера:
+    ```json
     {
         'response': False, 
          'message': 'Something went wrong'
     }
+    ```
     
 3. [http://localhost:5080](http://localhost:5080/registration)/logout/access (метод: **POST**)
     Нужно передать в хэдере запроса access token.

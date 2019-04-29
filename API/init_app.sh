@@ -1,17 +1,11 @@
 pip3 install -r requirements.txt
-cd ML-API
-export FLASK_APP=app.py
+export FLASK_APP=ML-API/app.py
 flask db init
 flask db migrate
 flask db upgrade
-cd ../Analyser-API
-flask db init
-cd ../ML-API
-cp -r migrations ../Analyser-API/
+export FLASK_APP=Analyser-API/app.py
 flask db migrate
 flask db upgrade 
-python3 app.py &
-cd ../ML-API
-python3 app.py &
-cd ../Scraper-API
-python3 main.py &
+python3 Analyser-API/app.py &
+python3 ML-API/app.py &
+python3 Scraper-API/main.py

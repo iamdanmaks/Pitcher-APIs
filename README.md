@@ -45,8 +45,8 @@ Analyser-API endpoints:
     Принимает тело запроса следующего формата: 
     ```json
     {
-         "user": "" (string), 
-         "user_password": "" (string)
+         "user": "", 
+         "user_password": ""
     }
     ```
 
@@ -65,7 +65,7 @@ Analyser-API endpoints:
     {
 
           "response": false,
-          "message": "User <> doesn\'t exist"
+          "message": "User <> doesn't exist"
 
     }
     ```

@@ -6,6 +6,6 @@ flask db upgrade
 set FLASK_APP=Analyser-API/app.py
 flask db migrate
 flask db upgrade
-start cmd /k Analyser-API/python app.py
-start cmd /k ML-API/python app.py
-start cmd /k Scraper-API/python main.py
+start cmd /k python Analyser-API/app.py
+start cmd /k python ML-API/app.py
+start cmd /k python Scraper-API/main.py

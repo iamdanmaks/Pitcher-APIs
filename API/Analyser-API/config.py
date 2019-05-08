@@ -13,3 +13,13 @@ class Config:
     JWT_SECRET_KEY = 'jwt-secret-string'
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+    OAUTH_CREDENTIALS = {
+        'facebook': {
+            'id': '451028598976296',
+            'secret': 'cf7c2ba23b5fed2f97a77fb96fc52e2b'
+        },
+        'google': {
+            'id': '175438313875-vbd9cnjbu1otu9jj0r1pgge748sae0gj.apps.googleusercontent.com',
+            'secret': 'fvsIS_xMSKzuxi_GZROO8EI_'
+        }
+    }

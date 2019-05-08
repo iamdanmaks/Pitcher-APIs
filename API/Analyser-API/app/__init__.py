@@ -33,6 +33,11 @@ def check_if_token_in_blacklist(decrypted_token):
 
 api.add_resource(user.UserRegistration, '/registration')
 api.add_resource(user.UserLogin, '/login')
+api.add_resource(user.OAuthAuthorize, '/oauth/login')
+api.add_resource(user.OAuthFacebookCallback, '/oauth/facebook/callback')
+api.add_resource(user.OAuthGoogleCallback, '/oauth/google/callback')
+api.add_resource(user.UserChange, '/update_or_delete_user')
+api.add_resource(user.Followers, '/followers')
 api.add_resource(user.UserLogoutAccess, '/logout/access')
 api.add_resource(user.UserLogoutRefresh, '/logout/refresh')
 api.add_resource(user.TokenRefresh, '/token/refresh')

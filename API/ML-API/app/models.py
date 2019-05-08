@@ -62,10 +62,11 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(64), index=True, unique=True)
     fullname = db.Column(db.String(150)) 
     active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
-    email = db.Column(db.String(120), index=True, nullable=False, unique=True)
-    password_hash = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(120), index=True, nullable=True, unique=True)
+    socialId = db.Column(db.String(120))
+    password_hash = db.Column(db.String(128), nullable=True)
     sign_date = db.Column(db.DateTime, default=datetime.now())
-    avatar_ = db.Column(db.Binary)
+    avatar_ = db.Column(db.String(300))
     isCompany = db.Column(db.Boolean(), nullable=False, server_default='0')
 
     my_researches = db.relationship(
@@ -108,7 +109,7 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
     def follow(self, user):
-        if not self.is_following(user) and user.isCompany is False:
+        if not self.is_following(user) and user.isCompany is False and self.isCompany is True:
             self.followed.append(user)
 
     def unfollow(self, user):
@@ -118,12 +119,23 @@ class User(db.Model, UserMixin):
     def is_following(self, user):
         return self.followed.filter(
             followers.c.followed_id == user.id).count() > 0
-
+    
+    def get_followed(self):
+        return list(self.followed)
 
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
     
+
+    def del_from_db(self):
+        self.owners.clear()
+        self.subscribed.clear()
+        self.my_researches.clear()
+        self.followed.clear()
+        db.session.delete(self)
+        db.session.commit()
+
 
     @classmethod
     def find_by_username(cls, username):

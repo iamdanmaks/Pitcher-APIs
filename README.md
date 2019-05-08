@@ -9,11 +9,20 @@ Analyser-API endpoints:
     {
          "username": "", 
          "password": "", 
-         "isCompany": true/false, 
+         "userType": 0/1/2, 
          "email": "", 
-         "fullname": "" 
+         "fullname": "",
+         "company_name": ""
     }
     ```
+    
+    company_name не обязателен. userType указывает кем является пользователь:
+    
+    0) пользователь-любитель, который работает с сервисом не от компании
+    
+    1) пользователь, устроенный в компанию
+    
+    2) пользователь-компания
 
     Возвращает, если всё правильно:
     ```json
@@ -49,7 +58,8 @@ Analyser-API endpoints:
          "user_password": ""
     }
     ```
-
+    user - email пользователя.
+    
     Возвращает, если всё правильно:
     ```json
     {

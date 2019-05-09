@@ -18,4 +18,4 @@ login_parser.add_argument('fullname', type=str)
 login_parser.add_argument('bio', type=str)
 
 followers_parser = reqparse.RequestParser()
-followers_parser.add_argument('username', help='This field cannot be blank', required=True)
+followers_parser.add_argument('worker_name', help='This field cannot be blank', required=True)

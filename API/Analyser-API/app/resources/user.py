@@ -221,7 +221,7 @@ class OAuthGoogleCallback(Resource):
 
 class UserChange(Resource):
     @jwt_required
-    def post(self):
+    def put(self):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
         
@@ -293,8 +293,8 @@ class Followers(Resource):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
 
-        from flask import request
-        worker_name = request.args.get('worker_name')
+        data = followers_parser.parse_args()
+        worker_name = data.get('worker_name')
         worker = User.find_by_username(worker_name)
 
         if current_user is None:
@@ -335,8 +335,8 @@ class Followers(Resource):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
 
-        from flask import request
-        worker_name = request.args.get('worker_name')
+        data = followers_parser.parse_args()
+        worker_name = data.get('worker_name')
         worker = User.find_by_username(worker_name)
 
         if current_user is None:

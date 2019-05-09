@@ -175,23 +175,23 @@ Analyser-API endpoints:
     }
     ```
 
-8. [http://localhsot:5080/oauth/login](http://localhsot:5080/oauth/login) (метод **GET**)
+8. [http://localhost:5080/oauth/login](http://localhsot:5080/oauth/login) (метод **GET**)
 
     Инициирует логин через сторонние сервисы.
     
     Нужно передать аргумент provider, который указывает через какой сервис залогинить.
     
-    Если логин через Google: [http://localhsot:5080/oauth/login?provider=google](http://localhsot:5080/oauth/login?provider=google)
+    Если логин через Google: [http://localhost:5080/oauth/login?provider=google](http://localhsot:5080/oauth/login?provider=google)
     
-    Если логин через Facebook: [http://localhsot:5080/oauth/login?provider=facebook](http://localhsot:5080/oauth/login?provider=facebook)
+    Если логин через Facebook: [http://localhost:5080/oauth/login?provider=facebook](http://localhsot:5080/oauth/login?provider=facebook)
 
-9. [http://localhsot:5080/oauth/facebook/callback?provider=facebook](http://localhsot:5080/oauth/facebook/callback) (метод **GET**)
+9. [http://localhost:5080/oauth/facebook/callback?provider=facebook](http://localhsot:5080/oauth/facebook/callback) (метод **GET**)
 
     Получает данные с Facebook об аккаунте, с которого залогинились.
     
     Возвращает такие же данные как и **/login**.
     
-10. [http://localhsot:5080/oauth/google/callback?provider=google](http://localhsot:5080/oauth/facebook/callback) (метод **GET**)
+10. [http://localhost:5080/oauth/google/callback?provider=google](http://localhsot:5080/oauth/facebook/callback) (метод **GET**)
 
     Получает данные с Google об аккаунте, с которого залогинились.
     

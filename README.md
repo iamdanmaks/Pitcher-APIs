@@ -3,7 +3,7 @@
 
 Analyser-API endpoints:
 
-1. [http://localhost:5080/registration](http://localhost:5080/registration) (метод **POST**). 
+1. http://localhost:5080/registration (метод **POST**). 
     Принимает тело запроса следующего формата: 
     ```json
     {
@@ -50,7 +50,7 @@ Analyser-API endpoints:
     }
     ```
 
-2. [http://localhost:5080/login](http://localhost:5080/login) (метод **POST**). 
+2. http://localhost:5080/login (метод **POST**). 
     Принимает тело запроса следующего формата: 
     ```json
     {
@@ -88,7 +88,7 @@ Analyser-API endpoints:
     }
     ```
     
-3. [http://localhost:5080/logout/access](http://localhost:5080/logout/access) (метод: **POST**)
+3. http://localhost:5080/logout/access (метод: **POST**)
     
     Добавляет токен в чёрный список.
     
@@ -110,7 +110,7 @@ Analyser-API endpoints:
     }
     ```
     
-4. [http://localhost:5080/logout/refresh](http://localhost:5080/logout/refresh) (метод: **POST**)
+4. http://localhost:5080/logout/refresh (метод: **POST**)
     
     Добавляет токен обновления в чёрный список.
     
@@ -132,7 +132,7 @@ Analyser-API endpoints:
     }
     ```
     
-5. [http://localhost:5080/token/refresh](http://localhost:5080/token/refresh) (метод: **POST**)
+5. http://localhost:5080/token/refresh (метод: **POST**)
     
     Нужно передать в хэдере запроса refresh token.
     ```json
@@ -140,7 +140,7 @@ Analyser-API endpoints:
         "access_token": ""
     }
     ```
-6. [http://localhost:5080/users](http://localhost:5080/users) (метод: **GET**)
+6. http://localhost:5080/users (метод: **GET**)
     
     Возвращает краткую информацию по всем пользователям.
     
@@ -157,7 +157,7 @@ Analyser-API endpoints:
     }
     ```
     
-7. [http://localhost:5080/users](http://localhost:5080/users) (метод: **DELETE**)
+7. http://localhost:5080/users (метод: **DELETE**)
     
     Удаляет всех пользователей.
     
@@ -175,33 +175,33 @@ Analyser-API endpoints:
     }
     ```
 
-8. [http://localhost:5080/oauth/login](http://localhsot:5080/oauth/login) (метод **GET**)
+8. http://localhost:5080/oauth/login (метод **GET**)
 
     Инициирует логин через сторонние сервисы.
     
     Нужно передать аргумент provider, который указывает через какой сервис залогинить.
     
-    Если логин через Google: [http://localhost:5080/oauth/login?provider=google](http://localhsot:5080/oauth/login?provider=google)
+    Если логин через Google: http://localhost:5080/oauth/login?provider=google
     
-    Если логин через Facebook: [http://localhost:5080/oauth/login?provider=facebook](http://localhsot:5080/oauth/login?provider=facebook)
+    Если логин через Facebook: http://localhost:5080/oauth/login?provider=facebook
 
-9. [http://localhost:5080/oauth/facebook/callback?provider=facebook](http://localhsot:5080/oauth/facebook/callback) (метод **GET**)
+9. http://localhost:5080/oauth/facebook/callback?provider=facebook (метод **GET**)
 
     Получает данные с Facebook об аккаунте, с которого залогинились.
     
     Возвращает такие же данные как и **/login**.
     
-10. [http://localhost:5080/oauth/google/callback?provider=google](http://localhsot:5080/oauth/facebook/callback) (метод **GET**)
+10. http://localhost:5080/oauth/google/callback?provider=google (метод **GET**)
 
     Получает данные с Google об аккаунте, с которого залогинились.
     
     Возвращает такие же данные как и **/login**.
    
-11. [http://localhost:5080/update_or_delete_user](http://localhost:5080/update_or_delete_user) (метод **DELETE**)
+11. http://localhost:5080/update_or_delete_user (метод **DELETE**)
 
     В хедере нужно передать токен доступа. Удаляет аккаунт пользователя.
     
-12. [http://localhost:5080/update_or_delete_user](http://localhost:5080/update_or_delete_user) (метод **PUT**)
+12. http://localhost:5080/update_or_delete_user (метод **PUT**)
 
     Редактирует аккаунт. Нужен токен доступа. Принимает на вход:
     

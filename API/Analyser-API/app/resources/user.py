@@ -58,7 +58,7 @@ class UserLogin(Resource):
             return {
                 'response': False,
                 'message': 'User {} doesn\'t exist'.format(data['username'])
-            }
+            }, 400
         
         if current_user.check_password(data['user_password']):
             access_token = create_access_token(identity = current_user.username)
@@ -136,6 +136,12 @@ class OAuthGoogleCallback(Resource):
         social_id, email, fullname = oauth.callback()
         username = fullname.split(' ')[0] + str(db.session.query(User).count())
 
+        if social_id is None:
+            return {
+                'response': False,
+                'message': 'Something is wrong with Facebook API.'
+            }, 500
+
         user = User.query.filter_by(socialId=social_id).first()
 
         if not user:
@@ -203,7 +209,7 @@ class UserChange(Resource):
             return {
                 'response': False,
                 'message': 'User {} does not exist'.format(current_username)
-            }, 500
+            }, 400
 
         return {
             'response': True,
@@ -243,25 +249,25 @@ class Followers(Resource):
             return {
                 'response': False,
                 'message': 'User {} does not exist'.format(current_username)
-            }, 500
+            }, 400
         
         if worker is None:
             return {
                 'response': False,
                 'message': 'User {} does not exist'.format(worker_name)
-            }, 500
+            }, 400
         
         if current_user.isCompany is False:
             return {
                 'response': False,
                 'message': 'User {} is not a company'.format(current_username)
-            }, 500
+            }, 400
         
         if worker.isCompany:
             return {
                 'response': False,
                 'message': 'User {} has to be a person, but not a company.'.format(worker_name)
-            }, 500
+            }, 400
         
         if current_user.follow(worker):
             db.session.commit()
@@ -285,25 +291,25 @@ class Followers(Resource):
             return {
                 'response': False,
                 'message': 'User {} does not exist'.format(current_username)
-            }, 500
+            }, 400
         
         if worker is None:
             return {
                 'response': False,
                 'message': 'User {} does not exist'.format(worker_name)
-            }, 500
+            }, 400
         
         if current_user.isCompany is False:
             return {
                 'response': False,
                 'message': 'User {} is not a company'.format(current_username)
-            }, 500
+            }, 400
         
         if worker.isCompany:
             return {
                 'response': False,
                 'message': 'User {} has to be a person, but not a company.'.format(worker_name)
-            }, 500
+            }, 400
         
         if current_user.unfollow(worker):
             db.session.commit()
@@ -322,7 +328,7 @@ class Followers(Resource):
             return {
                 'response': False,
                 'message': 'User {} does not exist'.format(current_username)
-            }, 500
+            }, 400
         
         return User.return_followed()
 

@@ -8,10 +8,12 @@ from flask_optimize import FlaskOptimize
 from flask_login import LoginManager
 from config import Config
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 flask_optimize = FlaskOptimize()
 Compress(app)
 app.config.from_object(Config)

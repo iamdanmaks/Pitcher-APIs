@@ -26,3 +26,4 @@ followers_parser.add_argument('worker_name', help='This field cannot be blank', 
 
 research_filters = reqparse.RequestParser()
 research_filters.add_argument('sort_way', type=list)
+

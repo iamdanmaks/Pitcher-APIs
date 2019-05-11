@@ -38,6 +38,7 @@ class UserRegistration(Resource):
             return {
                 'response': True,
                 'message': 'User {} was created'.format(data['username']),
+                'id': new_user.id,
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }
@@ -66,6 +67,7 @@ class UserLogin(Resource):
             return {
                 'response': True,
                 'message': 'Logged in as {}'.format(current_user.username),
+                'id': current_user.id,
                 'access_token': access_token,
                 'refresh_token': refresh_token
             }
@@ -242,8 +244,8 @@ class Followers(Resource):
         current_user = User.find_by_username(current_username)
 
         data = followers_parser.parse_args()
-        worker_name = data.get('worker_name')
-        worker = User.find_by_username(worker_name)
+        worker_name = data.get('worker_id')
+        worker = User.find_by_id(worker_name)
 
         if current_user is None:
             return {
@@ -270,11 +272,12 @@ class Followers(Resource):
             }, 400
         
         if current_user.follow(worker):
+            from app import db
             db.session.commit()
 
         return {
             'response': True,
-            'message': '{} works for {} from this moment'.format(worker_name, current_username)
+            'message': '{} works for {} from this moment'.format(worker.username, current_username)
         }
 
     
@@ -284,8 +287,8 @@ class Followers(Resource):
         current_user = User.find_by_username(current_username)
 
         data = followers_parser.parse_args()
-        worker_name = data.get('worker_name')
-        worker = User.find_by_username(worker_name)
+        worker_name = data.get('worker_id')
+        worker = User.find_by_id(worker_name)
 
         if current_user is None:
             return {
@@ -312,11 +315,12 @@ class Followers(Resource):
             }, 400
         
         if current_user.unfollow(worker):
+            from app import db
             db.session.commit()
 
         return {
             'response': True,
-            'message': '{} stopped working for {}'.format(worker_name, current_username)
+            'message': '{} stopped working for {}'.format(worker.username, current_username)
         }
     
     @jwt_required
@@ -380,9 +384,11 @@ class SecretResource(Resource):
 
         def to_json(x):
             return {
+                'id': x.id,
                 'username': x.username,
                 'fullname': x.fullname,
-                'bio': x.bio
+                'biography': x.bio,
+                'isCompany': x.isCompany
             }
 
         return {

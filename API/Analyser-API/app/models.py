@@ -158,11 +158,13 @@ class User(db.Model, UserMixin):
     def find_by_username(cls, username):
         return cls.query.filter_by(username = username).first()
     
+    @classmethod
+    def find_by_id(cls, user_id):
+        return cls.query.filter_by(id = user_id).first()
 
     @classmethod
     def find_by_email(cls, user_email):
         return cls.query.filter_by(email = user_email).first()
-
 
     @classmethod
     def return_followed(cls):
@@ -178,8 +180,10 @@ class User(db.Model, UserMixin):
     def return_all(cls):
         def to_json(x):
             return {
+                'id': x.id,
                 'username': x.username,
                 'fullname': x.fullname,
+                'biography': x.bio,
                 'isCompany': x.isCompany
             }
         return {'users': list(map(lambda x: to_json(x), User.query.all()))}

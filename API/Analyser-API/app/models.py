@@ -218,6 +218,7 @@ class Research(db.Model):
     appId = db.Column(db.String(100))
     appDev = db.Column(db.String(100), index=True)
     appName = db.Column(db.String(100), index=True)
+    algos = db.Column(db.Text)
     ownerId = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     workers = db.relationship(

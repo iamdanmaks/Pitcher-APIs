@@ -40,6 +40,7 @@ class CreateResearch(Resource):
             
             new_research.updateInterval = data.get('update_interval')
             new_research.type_of_research = data.get('type')
+            new_research.analysers = data.get('analysers')
             new_research.appId = data.get('app_id')
             new_research.appName = data.get('app_name')
             new_research.appDev = data.get('app_dev')
@@ -55,9 +56,11 @@ class CreateResearch(Resource):
                 researchId=new_research.id,
                 permission=True
             )
+            
             user_res.researches.append(new_research)
             current_user.my_researches.append(user_res)
             current_user.owners.append(new_research)
+            
             db.session.add(new_research)
             db.session.commit()
         

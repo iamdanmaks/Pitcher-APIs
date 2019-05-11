@@ -13,6 +13,9 @@ class Config:
     JWT_SECRET_KEY = 'jwt-secret-string'
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+    MSEARCH_INDEX_NAME = 'msearch'
+    MSEARCH_BACKEND = 'whoosh'
+    MSEARCH_ENABLE = True
     OAUTH_CREDENTIALS = {
         'facebook': {
             'id': '451028598976296',

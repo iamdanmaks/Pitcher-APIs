@@ -1,4 +1,4 @@
-from app import db, login
+from app import db, login, whooshee
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -13,8 +13,15 @@ followers = db.Table(
 
 subscriptions = db.Table(
     'subscriptions',
-    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('research.id'))
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('research_id', db.Integer, db.ForeignKey('research.id'))
+)
+
+
+likes = db.Table(
+    'likes',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('research_id', db.Integer, db.ForeignKey('research.id'))
 )
 
 
@@ -55,15 +62,17 @@ class UserResearchPermission(db.Model):
     )
 
 
+@whooshee.register_model('username', 'fullname', 'bio')
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
-    fullname = db.Column(db.String(150)) 
+    fullname = db.Column(db.String(150), index=True) 
     active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
     email = db.Column(db.String(120), index=True, nullable=True, unique=True)
-    socialId = db.Column(db.String(120))
+    bio = db.Column(db.Text, index=True)
+    socialId = db.Column(db.String(120), unique=True)
     password_hash = db.Column(db.String(128), nullable=True)
     sign_date = db.Column(db.DateTime, default=datetime.now())
     avatar_ = db.Column(db.String(300))
@@ -96,7 +105,13 @@ class User(db.Model, UserMixin):
     subscribed = db.relationship(
         "Research",
         secondary=subscriptions,
-        backref="subscribers"
+        back_populates="subscribers"
+    )
+
+    liked = db.relationship(
+        "Research",
+        secondary=likes,
+        back_populates="user_liked"
     )
 
     def __repr__(self):
@@ -143,8 +158,9 @@ class User(db.Model, UserMixin):
     def find_by_username(cls, username):
         return cls.query.filter_by(username = username).first()
     
+
     @classmethod
-    def find_by_username(cls, user_email):
+    def find_by_email(cls, user_email):
         return cls.query.filter_by(email = user_email).first()
 
 
@@ -184,25 +200,38 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+@whooshee.register_model('topic', 'appName', 'description', 'appDev')
 class Research(db.Model):
     __tablename__ = 'research'
 
     id = db.Column(db.Integer, primary_key=True)
-    topic = db.Column(db.String(80), nullable=False)
+    topic = db.Column(db.String(80), nullable=False, index=True)
     creationDate = db.Column(db.DateTime, default=datetime.now())
+    description = db.Column(db.Text, index=True)
     type_of_research = db.Column(db.Boolean(), server_default='1')
     updateInterval = db.Column(db.Integer)
     views = db.Column(db.Integer, default=0)
-    likes = db.Column(db.Integer, default=0)
     appId = db.Column(db.String(100))
-    appDev = db.Column(db.String(100))
-    appName = db.Column(db.String(100))
+    appDev = db.Column(db.String(100), index=True)
+    appName = db.Column(db.String(100), index=True)
     ownerId = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     workers = db.relationship(
         "UserResearchPermission",
         back_populates="researches",
         uselist=True
+    )
+
+    subscribers = db.relationship(
+        "User",
+        secondary=subscriptions,
+        back_populates="subscribed"
+    )
+
+    user_liked = db.relationship(
+        "User",
+        secondary=likes,
+        back_populates="liked"
     )
     
     modules = db.relationship(
@@ -238,6 +267,9 @@ class Research(db.Model):
         uselist=True
     )
 
+    def __repr__(self):
+        return '{}\n{}'.format(self.topic, self.description)
+
 
 class ResearchModule(db.Model):
     __tablename__ = 'research_module'
@@ -249,6 +281,7 @@ class ResearchModule(db.Model):
 
 class ResearchKeyword(db.Model):
     __tablename__ = 'research_keyword'
+    __searchable__ = ['keyword']
 
     keyword = db.Column(db.String(80), primary_key=True)
     researchId = db.Column(db.Integer, db.ForeignKey('research.id'))

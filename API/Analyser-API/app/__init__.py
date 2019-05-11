@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restful import Api
+from flask_whooshee import Whooshee
 from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -19,6 +20,8 @@ jwt = JWTManager(app)
 login.login_view = 'login'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+whooshee = Whooshee()
+whooshee.init_app(app)
 
 
 from app import routes, models
@@ -42,4 +45,4 @@ api.add_resource(user.UserLogoutAccess, '/logout/access')
 api.add_resource(user.UserLogoutRefresh, '/logout/refresh')
 api.add_resource(user.TokenRefresh, '/token/refresh')
 api.add_resource(user.AllUsers, '/users')
-api.add_resource(user.SecretResource, '/secret')
+api.add_resource(user.SecretResource, '/search/users')

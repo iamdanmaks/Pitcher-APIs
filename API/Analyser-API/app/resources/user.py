@@ -26,71 +26,10 @@ class UserRegistration(Resource):
         new_user = User()
 
         new_user.set_password(data['password'])
-        if int(data['userType']) == 0:
-            fullname = data.get('fullname')
-            
-            if fullname is None:
-                return {
-                    'response': False, 
-                    'message': 'Wrong credentials for ordinary user'
-                }, 500
-            
-            else:
-                new_user.fullname = fullname
-            
-            new_user.isCompany = False
-        
-        elif int(data['userType']) == 1:
-            fullname = data.get('fullname')
-            
-            if fullname is None:
-                return {
-                    'response': False, 
-                    'message': 'Wrong credentials for ordinary user'
-                }, 500
-            
-            else:
-                new_user.fullname = fullname
-            
-            try:
-                comp = data.get('company_name')
-                
-                if comp is None:
-                    return {
-                        'response': False, 
-                        'message': 'No company name for employed user'
-                    }, 500
-                
-                company = User.query.filter_by(username=comp).first()
-
-                if company is None or company.isCompany is False:
-                    print(company)
-                    return {
-                        'response': False,
-                        'message': '{} company does not exist'.format(comp)
-                    }, 500
-                
-                new_user.isCompany = False
-                company.follow(new_user)
-            except:
-                pass
-
-        else:
-            fullname = data.get('fullname')
-            
-            if fullname is not None:
-                return {
-                    'response': False, 
-                    'message': 'Wrong credentials for company user'
-                }, 500
-            
-            else:
-                new_user.fullname = data.get('company_name')
-            
-            new_user.isCompany = True
-
-        new_user.email = data['email']
         new_user.username = data['username']
+        new_user.email = data['email']
+        new_user.isCompany = bool(data['isCompany'])
+        new_user.fullname = data['fullname']
 
         try:
             new_user.save_to_db()
@@ -122,8 +61,8 @@ class UserLogin(Resource):
             }
         
         if current_user.check_password(data['user_password']):
-            access_token = create_access_token(identity = data['user'])
-            refresh_token = create_refresh_token(identity = data['user'])
+            access_token = create_access_token(identity = current_user.username)
+            refresh_token = create_refresh_token(identity = current_user.username)
             return {
                 'response': True,
                 'message': 'Logged in as {}'.format(current_user.username),
@@ -135,7 +74,7 @@ class UserLogin(Resource):
             return {
                 'response': False,
                 'message': 'Wrong credentials'
-            }
+            }, 500
 
 
 class OAuthAuthorize(Resource):
@@ -226,7 +165,8 @@ class UserChange(Resource):
         current_user = User.find_by_username(current_username)
         
         if current_user is not None:
-            data = update_user_parser.parse_args()
+            from flask import request
+            data = request.json
 
             try:
                 current_user.username = data['username']
@@ -244,7 +184,6 @@ class UserChange(Resource):
                 pass
         
             try:
-                from flask import request
                 from PIL import Image
 
                 file = request.files['avatar']
@@ -256,6 +195,9 @@ class UserChange(Resource):
                 current_user.avatar_ = 'app/static/{}.jpg'.foramt(current_username)
             except KeyError:
                 pass
+
+            from app import db
+            db.session.commit()
 
         else:
             return {
@@ -426,8 +368,17 @@ class AllUsers(Resource):
       
       
 class SecretResource(Resource):
-    @jwt_required
     def get(self):
+        from flask import request
+        keyword = request.args.get('keyword')
+
+        def to_json(x):
+            return {
+                'username': x.username,
+                'fullname': x.fullname,
+                'bio': x.bio
+            }
+
         return {
-            'answer': 42
+            'message': list(map(lambda x: to_json(x), User.query.whooshee_search(keyword).all()))
         }

@@ -1,5 +1,4 @@
 from flask_restful import Resource
-from flask_cors import cross_origin
 from flask_jwt_extended import (create_access_token, create_refresh_token, 
     jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
 from app.resources.request_parser import (reg_parser, login_parser, 
@@ -15,7 +14,6 @@ from app.models import User, RevokedTokenModel
 '''
 
 class UserRegistration(Resource):
-    @cross_origin()
     def post(self):
         data = reg_parser.parse_args()
         
@@ -52,7 +50,6 @@ class UserRegistration(Resource):
 
 
 class UserLogin(Resource):
-    @cross_origin()
     def post(self):
         data = login_parser.parse_args()
         current_user = User.find_by_email(data['user'])
@@ -81,7 +78,6 @@ class UserLogin(Resource):
 
 
 class OAuthAuthorize(Resource):
-    @cross_origin()
     def get(self):
         from flask import request
         provider = request.args.get('provider')
@@ -92,7 +88,6 @@ class OAuthAuthorize(Resource):
 
 
 class OAuthFacebookCallback(Resource):
-    @cross_origin()
     def get(self):
         from flask import request
         provider = request.args.get('provider')
@@ -130,7 +125,6 @@ class OAuthFacebookCallback(Resource):
 
 
 class OAuthGoogleCallback(Resource):
-    @cross_origin()
     def get(self):
         from flask import request
         provider = request.args.get('provider')
@@ -166,7 +160,6 @@ class OAuthGoogleCallback(Resource):
 
 class UserChange(Resource):
     @jwt_required
-    @cross_origin()
     def put(self):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
@@ -218,7 +211,6 @@ class UserChange(Resource):
         }
     
     @jwt_required
-    @cross_origin()
     def delete(self):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
@@ -239,7 +231,6 @@ class UserChange(Resource):
 
 class Followers(Resource):
     @jwt_required
-    @cross_origin()
     def post(self):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
@@ -282,7 +273,6 @@ class Followers(Resource):
 
     
     @jwt_required
-    @cross_origin()
     def delete(self):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
@@ -324,7 +314,6 @@ class Followers(Resource):
         }
     
     @jwt_required
-    @cross_origin()
     def get(self):
         current_username = get_jwt_identity()
         current_user = User.find_by_username(current_username)
@@ -340,7 +329,6 @@ class Followers(Resource):
       
 class UserLogoutAccess(Resource):
     @jwt_required
-    @cross_origin()
     def post(self):
         jti = get_raw_jwt()['jti']
         try:
@@ -353,7 +341,6 @@ class UserLogoutAccess(Resource):
       
 class UserLogoutRefresh(Resource):
     @jwt_refresh_token_required
-    @cross_origin()
     def post(self):
         jti = get_raw_jwt()['jti']
         try:
@@ -366,7 +353,6 @@ class UserLogoutRefresh(Resource):
       
 class TokenRefresh(Resource):
     @jwt_refresh_token_required
-    @cross_origin()
     def post(self):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity = current_user)
@@ -374,17 +360,14 @@ class TokenRefresh(Resource):
       
       
 class AllUsers(Resource):
-    @cross_origin()
     def get(self):
         return User.return_all()
     
-    @cross_origin()
     def delete(self):
         return User.delete_all()
       
       
 class SecretResource(Resource):
-    @cross_origin()
     def get(self):
         from flask import request
         keyword = request.args.get('keyword')

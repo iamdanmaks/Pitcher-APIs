@@ -1,4 +1,4 @@
-from app import db, login
+from app import db, login, whooshee
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -62,9 +62,9 @@ class UserResearchPermission(db.Model):
     )
 
 
+@whooshee.register_model('username', 'fullname', 'bio')
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
-    __searchable__ = ['username', 'fullname', 'bio']
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -105,13 +105,13 @@ class User(db.Model, UserMixin):
     subscribed = db.relationship(
         "Research",
         secondary=subscriptions,
-        backref="subscribers"
+        back_populates="subscribers"
     )
 
     liked = db.relationship(
         "Research",
         secondary=likes,
-        backref="user_liked"
+        back_populates="user_liked"
     )
 
     def __repr__(self):
@@ -158,8 +158,9 @@ class User(db.Model, UserMixin):
     def find_by_username(cls, username):
         return cls.query.filter_by(username = username).first()
     
+
     @classmethod
-    def find_by_username(cls, user_email):
+    def find_by_email(cls, user_email):
         return cls.query.filter_by(email = user_email).first()
 
 
@@ -199,9 +200,9 @@ def load_user(id):
     return User.query.get(int(id))
 
 
+@whooshee.register_model('topic', 'appName', 'description', 'appDev')
 class Research(db.Model):
     __tablename__ = 'research'
-    __searchable__ = ['topic', 'description', 'appName', 'appDev']
 
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(80), nullable=False, index=True)
@@ -265,6 +266,9 @@ class Research(db.Model):
         single_parent=True,
         uselist=True
     )
+
+    def __repr__(self):
+        return '{}\n{}'.format(self.topic, self.description)
 
 
 class ResearchModule(db.Model):

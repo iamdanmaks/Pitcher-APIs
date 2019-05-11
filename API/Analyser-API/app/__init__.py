@@ -13,7 +13,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 flask_optimize = FlaskOptimize()
 Compress(app)
 app.config.from_object(Config)

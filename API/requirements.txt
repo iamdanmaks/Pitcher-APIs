@@ -22,5 +22,4 @@ Flask_RESTful==0.3.7
 Werkzeug==0.14.1
 Pillow==6.0.0
 beautifulsoup4==4.7.1
-newspaper==0.1.0.7
 vaderSentiment==3.2.1

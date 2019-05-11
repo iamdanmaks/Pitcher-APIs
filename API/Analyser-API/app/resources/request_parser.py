@@ -26,3 +26,15 @@ followers_parser.add_argument('worker_id', type=int, help='This field cannot be 
 
 research_filters = reqparse.RequestParser()
 research_filters.add_argument('sort_way', type=list)
+
+
+create_research = reqparse.RequestParser()
+create_research.add_argument('topic', type=str, required=True, help='This field cannot be blank')
+create_research.add_argument('description', type=str)
+create_research.add_argument('keywords', type=str, required=True, help='This field cannot be blank')
+create_research.add_argument('modules', type=str, required=True, help='This field cannot be blank')
+create_research.add_argument('update_interval', type=str, required=True, help='This field cannot be blank')
+create_research.add_argument('app_id', type=str)
+create_research.add_argument('app_name', type=str)
+create_research.add_argument('app_dev', type=str)
+create_research.add_argument('type', type=bool, required=True, help='This field cannot be blank')

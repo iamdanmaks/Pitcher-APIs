@@ -158,11 +158,13 @@ class User(db.Model, UserMixin):
     def find_by_username(cls, username):
         return cls.query.filter_by(username = username).first()
     
+    @classmethod
+    def find_by_id(cls, user_id):
+        return cls.query.filter_by(id = user_id).first()
 
     @classmethod
     def find_by_email(cls, user_email):
         return cls.query.filter_by(email = user_email).first()
-
 
     @classmethod
     def return_followed(cls):
@@ -178,8 +180,10 @@ class User(db.Model, UserMixin):
     def return_all(cls):
         def to_json(x):
             return {
+                'id': x.id,
                 'username': x.username,
                 'fullname': x.fullname,
+                'biography': x.bio,
                 'isCompany': x.isCompany
             }
         return {'users': list(map(lambda x: to_json(x), User.query.all()))}
@@ -275,8 +279,7 @@ class ResearchModule(db.Model):
     __tablename__ = 'research_module'
 
     module = db.Column(db.String(25), primary_key=True)
-    researchId = db.Column(db.Integer, db.ForeignKey('research.id'))
-    langCode = db.Column(db.String(5))
+    researchId = db.Column(db.Integer, db.ForeignKey('research.id'), primary_key=True)
 
 
 class ResearchKeyword(db.Model):
@@ -284,7 +287,7 @@ class ResearchKeyword(db.Model):
     __searchable__ = ['keyword']
 
     keyword = db.Column(db.String(80), primary_key=True)
-    researchId = db.Column(db.Integer, db.ForeignKey('research.id'))
+    researchId = db.Column(db.Integer, db.ForeignKey('research.id'), primary_key=True)
 
 
 class ConductedResearch(db.Model):
@@ -436,7 +439,6 @@ class SearchTrends(db.Model):
 
     id = db.Column(db.Integer, db.ForeignKey('research.id'), primary_key=True)
     query = db.Column(db.String(150))
-    analyzerId = db.Column(db.Integer, db.ForeignKey('analyzer.id'))
 
     days = db.relationship(
         'DayInterest',

@@ -16,7 +16,7 @@ from app.models import User, RevokedTokenModel
 class UserRegistration(Resource):
     def post(self):
         data = reg_parser.parse_args()
-        
+
         if User.find_by_username(data['username']):
             return {
               'response': False,

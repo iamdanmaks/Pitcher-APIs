@@ -279,8 +279,10 @@ class ResearchModule(db.Model):
     __tablename__ = 'research_module'
 
     module = db.Column(db.String(25), primary_key=True)
-    researchId = db.Column(db.Integer, db.ForeignKey('research.id'))
-    langCode = db.Column(db.String(5))
+    researchId = db.Column(db.Integer, db.ForeignKey('research.id'), primary_key=True)
+
+    def __repr__(self):
+        return '{}.{}'.format(self.module, self.researchId)
 
 
 class ResearchKeyword(db.Model):
@@ -288,7 +290,10 @@ class ResearchKeyword(db.Model):
     __searchable__ = ['keyword']
 
     keyword = db.Column(db.String(80), primary_key=True)
-    researchId = db.Column(db.Integer, db.ForeignKey('research.id'))
+    researchId = db.Column(db.Integer, db.ForeignKey('research.id'), primary_key=True)
+
+    def __repr__(self):
+        return '{}.{}'.format(self.keyword, self.researchId)
 
 
 class ConductedResearch(db.Model):
@@ -440,7 +445,6 @@ class SearchTrends(db.Model):
 
     id = db.Column(db.Integer, db.ForeignKey('research.id'), primary_key=True)
     query = db.Column(db.String(150))
-    analyzerId = db.Column(db.Integer, db.ForeignKey('analyzer.id'))
 
     days = db.relationship(
         'DayInterest',

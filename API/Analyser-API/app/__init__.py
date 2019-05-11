@@ -27,7 +27,7 @@ whooshee.init_app(app)
 
 
 from app import routes, models
-from app.resources import user
+from app.resources import user, research
 
 
 @jwt.token_in_blacklist_loader
@@ -48,3 +48,4 @@ api.add_resource(user.UserLogoutRefresh, '/logout/refresh')
 api.add_resource(user.TokenRefresh, '/token/refresh')
 api.add_resource(user.AllUsers, '/users')
 api.add_resource(user.SecretResource, '/search/users')
+api.add_resource(research.CreateResearch, '/research/create')

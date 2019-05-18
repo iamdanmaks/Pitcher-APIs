@@ -175,6 +175,7 @@ class UserChange(Resource):
         if current_user is not None:
             from flask import request
             data = request.json
+            data = update_user_parser.parse_args()
 
             try:
                 current_user.username = data['username']
@@ -197,10 +198,10 @@ class UserChange(Resource):
                 file = request.files['avatar']
                 file.save('app/static/{}.jpg'.format(current_username))
                 
-                image = Image.open('app/static/{}.jpg'.foramt(current_username))
-                image.save('app/static/{}.jpg'.foramt(current_username), 'JPEG', dpi=[300, 300], quality=40)
+                image = Image.open('app/static/{}.jpg'.format(current_username))
+                image.save('app/static/{}.jpg'.format(current_username), 'JPEG', dpi=[300, 300], quality=40)
 
-                current_user.avatar_ = 'app/static/{}.jpg'.foramt(current_username)
+                current_user.avatar_ = 'app/static/{}.jpg'.format(current_username)
             except KeyError:
                 pass
 
@@ -334,7 +335,7 @@ class Followers(Resource):
                 'message': 'User {} does not exist'.format(current_username)
             }, 400
         
-        return User.return_followed()
+        return current_user.return_followed()
 
       
 class UserLogoutAccess(Resource):

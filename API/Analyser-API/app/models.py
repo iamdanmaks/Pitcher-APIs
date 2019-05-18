@@ -105,13 +105,15 @@ class User(db.Model, UserMixin):
     subscribed = db.relationship(
         "Research",
         secondary=subscriptions,
-        back_populates="subscribers"
+        back_populates="subscribers",
+        lazy='dynamic'
     )
 
     liked = db.relationship(
         "Research",
         secondary=likes,
-        back_populates="user_liked"
+        back_populates="user_liked",
+        lazy='dynamic'
     )
 
     def __repr__(self):
@@ -141,6 +143,38 @@ class User(db.Model, UserMixin):
         return self.followed.filter(
             followers.c.followed_id == user.id).count() > 0
     
+    def subscribe(self, research):
+        if not self.is_subscribed(research):
+            self.subscribed.append(research)
+            return True
+        return False
+
+    def unsubscribe(self, research):
+        if self.is_subscribed(research):
+            self.subscribed.remove(research)
+            return True
+        return False
+
+    def is_subscribed(self, research):
+        return self.subscribed.filter(
+            subscriptions.c.research_id == research.id).count() > 0
+    
+    def like(self, research):
+        if not self.is_liked(research):
+            self.liked.append(research)
+            return True
+        return False
+
+    def unlike(self, research):
+        if self.is_liked(research):
+            self.liked.remove(research)
+            return True
+        return False
+
+    def is_liked(self, research):
+        return self.liked.filter(
+            likes.c.research_id == research.id).count() > 0
+
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
@@ -153,6 +187,40 @@ class User(db.Model, UserMixin):
         db.session.delete(self)
         db.session.commit()
 
+    def return_followed(self):
+        def to_json(x):
+            return {
+                'id': x.id,
+                'username': x.username,
+                'fullname': x.fullname,
+                'biography': x.bio,
+                'isCompany': x.isCompany
+            }
+        return {'users': list(map(lambda x: to_json(x), list(self.followed)))}
+    
+    def return_subscribed(self):
+        def to_json(x):
+            return {
+                'id': x.id,
+                'topic': x.topic,
+                'description': x.description,
+                'creation': x.creationDate.strftime('%d.%m.%Y'),
+                'views': x.views,
+                'likes': len(db.session.query(likes).filter(likes.c.research_id == x.id).all())
+            }
+        return {'subscriptions': list(map(lambda x: to_json(x), list(self.subscribed)))}
+
+    def return_liked(self):
+        def to_json(x):
+            return {
+                'id': x.id,
+                'topic': x.topic,
+                'description': x.description,
+                'creation': x.creationDate.strftime('%d.%m/%Y'),
+                'views': x.views,
+                'likes': len(db.session.query(likes).filter(likes.c.research_id == x.id).all())
+            }
+        return {'liked': list(map(lambda x: to_json(x), list(self.liked)))}
 
     @classmethod
     def find_by_username(cls, username):
@@ -165,16 +233,6 @@ class User(db.Model, UserMixin):
     @classmethod
     def find_by_email(cls, user_email):
         return cls.query.filter_by(email = user_email).first()
-
-    @classmethod
-    def return_followed(cls):
-        def to_json(x):
-            return {
-                'username': x.username,
-                'fullname': x.fullname,
-                'avatar': x.avatar_
-            }
-        return {'workers': [to_json(worker) for worker in list(cls.followed)]}
 
     @classmethod
     def return_all(cls):
@@ -274,6 +332,10 @@ class Research(db.Model):
 
     def __repr__(self):
         return '{}\n{}'.format(self.topic, self.description)
+
+    @classmethod
+    def find_by_id(cls, res_id):
+        return cls.query.filter_by(id = res_id).first()
 
 
 class ResearchModule(db.Model):

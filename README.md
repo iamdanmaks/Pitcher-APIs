@@ -286,3 +286,11 @@ Analyser-API endpoints:
             ]
         }
     ```
+
+16. Лайки (поставить, получить пролайканые нынешним пользователем, удалить лайк) (методы: **POST**, **GET**, **DELETE**)
+
+    Ссылка: http://localhost:5080/research/like
+    
+  Для delete и post передай json: ```json {"research_id": int} ```.
+  
+  Тоже самое для подписок, но url меняется на http://localhost:5080/research/subscribe

@@ -240,3 +240,49 @@ Analyser-API endpoints:
         "message": "Research <> was created"
     }
     ```
+
+14. Получение инфы об исследовании (метод **GET**)
+
+    http://localhost:5080/research/use?res_id={}
+    
+    ```json
+    {
+        "id": int,
+        "topic": "",
+        "description": "",
+        "creation": "",
+        "last_update": "",
+        "views": int,
+        "owner": {
+            "id": int,
+            "username": "",
+            "fullname": ""
+        },
+        "keywords": [],
+        "active_modules": [],
+        "likes": int,
+        "subscriptions": int
+    }
+    ```
+15. Поиск исследований (метод **GET**)
+
+    Получаешь по ссылке, где все параметры необязательны кроме **keyword**: http://localhost:5080/research/search?keyword={}&sorting=creation/last_update/views/popularity/subscribers&start_date={dd.mm.YYYY}&end_date={dd.mm.YYYY}&analyser=vader/polyglot&isCompany=0/1&modules=play_store/search/twitter/news
+    
+    Возвращает:
+    
+    ```json
+        {
+            "response": true,
+            "results": [
+                {
+                    "id": int,
+                    "topic": "",
+                    "description": "",
+                    "creation": "dd.mm.YYYY",
+                    "views": int,
+                    "likes": int,
+                    "subscriptions": int
+                },...
+            ]
+        }
+    ```

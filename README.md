@@ -219,7 +219,24 @@ Analyser-API endpoints:
     Для создания исследования передай на http://localhost:5080/research/use следующий json:
     ```json
     {
-        
+        "topic": "", //обязательно
+        "description": "", //необязательно
+        "keywords": ["","","",...],
+        "modules": ["search", "play_store", "news", "twitter"], //передавать только комбинации из этих вариантов
+        "update_interval": "",
+        "app_id": "",
+        "app_name": "",
+        "app_dev": "",
+        "isPublic": true/false,
+        "analysers": "vader"/"polyglot"
     }
     ```
+    Возвращает:
     
+    ```json
+    {
+        "response": true,
+        "id": int,
+        "message": "Research <> was created"
+    }
+    ```

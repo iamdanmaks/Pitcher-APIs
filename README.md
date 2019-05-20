@@ -9,10 +9,9 @@ Analyser-API endpoints:
     {
          "username": "", 
          "password": "", 
-         "userType": 0/1/2, 
          "email": "", 
-         "fullname": "",
-         "company_name": ""
+         "fullname": "".
+         "isCompany": true/false
     }
     ```
     
@@ -54,7 +53,7 @@ Analyser-API endpoints:
     Принимает тело запроса следующего формата: 
     ```json
     {
-         "user": "", 
+         "user": "", //email
          "user_password": ""
     }
     ```
@@ -215,4 +214,12 @@ Analyser-API endpoints:
     
     Все поля не обязательны. Также можно передавать файл с аватаркой пользователя.
 
-13. 
+13. Создание исследования (метод **POST**)
+
+    Для создания исследования передай на http://localhost:5080/research/use следующий json:
+    ```json
+    {
+        
+    }
+    ```
+    

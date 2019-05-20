@@ -48,7 +48,7 @@ async def google_trends(request):
     rel_topics.drop('mid', axis=1, inplace=True)
 
     rel_queries = pytrends.related_queries()[topic[0]]
-
+    
     return json({'message':'done', 'response': True, 'result': {'interest': res.to_json(), 'related_topics': rel_topics.to_json(), 
     'top_queries': rel_queries['top'].to_json(), 'rising_queries': rel_queries['rising'].to_json() }})
 

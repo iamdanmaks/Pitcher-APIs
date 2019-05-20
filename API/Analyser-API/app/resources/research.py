@@ -84,18 +84,23 @@ class MyResearch(Resource):
         research = Research.find_by_id(int(request.args.get('res_id')))
         owner = User.find_by_id(research.ownerId)
 
-        return {
-                'id': research.id,
-                'topic': research.topic,
-                'description': research.description,
-                'creation': research.creationDate.strftime('%d.%m.%Y'),
-                'last_update': db.session.query(
+        try:
+            last = db.session.query(
                         ConductedResearch.date
                     ).filter(
                         ConductedResearch.researchId == research.id
                     ).order_by(
                         desc(ConductedResearch.date)
-                    ).first()[0],
+                    ).first()[0]
+        except:
+            last = research.creationDate.strftime('%d.%m.%Y')
+
+        return {
+                'id': research.id,
+                'topic': research.topic,
+                'description': research.description,
+                'creation': research.creationDate.strftime('%d.%m.%Y'),
+                'last_update': last,
                 'views': research.views,
                 'owner': {
                     'id': owner.id,
@@ -391,7 +396,8 @@ class SearchResearches(Resource):
                 'description': x.description,
                 'creation': x.creationDate.strftime('%d.%m.%Y'),
                 'views': x.views,
-                'likes': len(db.session.query(likes).filter(likes.c.research_id == x.id).all())
+                'likes': len(db.session.query(likes).filter(likes.c.research_id == x.id).all()),
+                'likes': len(db.session.query(subscriptions).filter(subscriptions.c.research_id == x.id).all())
             }
 
         if request.args.get('sort_way') is None or request.args.get('sort_way') == 'creation':

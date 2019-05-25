@@ -400,6 +400,9 @@ class SearchResearches(Resource):
                 'likes': len(db.session.query(subscriptions).filter(subscriptions.c.research_id == x.id).all())
             }
 
+        if keyword is None or keyword == '' or len(keyword) <= 3:
+            result = Research.query.all()[::-1]
+
         if request.args.get('sort_way') is None or request.args.get('sort_way') == 'creation':
             result = Research.query.whooshee_search(
                 keyword).filter(Research.type_of_research == True).order_by(

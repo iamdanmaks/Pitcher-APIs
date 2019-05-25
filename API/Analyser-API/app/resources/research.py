@@ -113,7 +113,7 @@ class MyResearch(Resource):
                 'active_modules': [x[0] for x in db.session.query(ResearchModule.module).filter(
                     ResearchModule.researchId == research.id
                 ).all()],
-                'likes': len(db.session.query(likes).filter(likes.c.research_id == x.id).all()),
+                'likes': len(db.session.query(likes).filter(likes.c.research_id == research.id).all()),
                 'subscriptions': len(db.session.query(subscriptions).filter(
                     subscriptions.c.research_id == research.id
                 ).all())

@@ -326,3 +326,39 @@ Analyser-API endpoints:
         ]
     }
     ```
+
+18. Информация про новости в исследовании (метод: **GET**)
+
+    ```json
+    {
+        
+    }
+    ```
+
+19. Информация про Play store (метод: **GET**)
+
+    ```json
+    {
+        "hist":{
+            "one": 1,
+            "two": 1,
+            "three": 1,
+            "four": 1,
+            "five": 1
+        },
+        "app_info": {
+            "name": "",
+            "rate": 4.5,
+            "downloads": "10000+",
+            "reviews": 1500,
+            "not_clear_reviews": 500
+        },
+        "top_reviews": [
+            {
+                "rate": 4,
+                "text": "",
+                "sentiment": 1
+            }
+        ]
+    }
+    ```

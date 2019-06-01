@@ -362,3 +362,26 @@ Analyser-API endpoints:
         ]
     }
     ```
+
+20. Информация про поисковые тренды:
+
+    ```json
+    {
+        "popularity":[
+            {
+                "date": "mm.YYYY",
+                "rate": 1
+            }
+        ],
+        "countries": [
+            {
+                "country": "",
+                "rate": 1
+            }
+        ],
+        "related":[
+            "query1",
+            "query2"
+        ]
+    }
+    ```

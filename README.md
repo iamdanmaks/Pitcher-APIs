@@ -294,3 +294,35 @@ Analyser-API endpoints:
   Для delete и post передай json: ```json {"research_id": int} ```.
   
   Тоже самое для подписок, но url меняется на http://localhost:5080/research/subscribe
+
+17. Информация про твиттер в исследовании (метод **GET**)
+
+    Будет возвращаться информация про популярность, настроение и самые используемые слова:
+    
+    ```json
+    {
+        "popularity_rate": [
+            {
+                "date": "",
+                "rate": 1
+            }
+        ],
+        "sentiment": {
+            "positive_percent": 33,
+            "neutral_percent": 33,
+            "negative_percent": 34
+        },
+        "frequent_words": [
+            {
+                "word": "",
+                "rate": 1
+            }
+        ],
+        "tweets": [
+            {
+                "url": "",
+                "sentiment": 1
+            }
+        ]
+    }
+    ```

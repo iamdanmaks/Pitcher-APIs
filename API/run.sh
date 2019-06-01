@@ -1,6 +1,6 @@
 cd Analyser-API
-terminal -e python app.py
+python3 app.py &
 cd ../ML-API
-terminal -e python app.py
+python3 python app.py &
 cd ../Scraper-API
-terminal -e python main.py
+python3 main.py

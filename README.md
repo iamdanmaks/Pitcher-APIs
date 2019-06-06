@@ -331,7 +331,19 @@ Analyser-API endpoints:
 
     ```json
     {
-        
+        "news": [
+            {
+                "source": "",
+                "link": "",
+                "title": ""
+            }
+        ],
+        "words": ["","",""],
+        "sentiment": {
+            "positive_percent": 33,
+            "negative_percent": 33,
+            "neutral_percent": 34
+        }
     }
     ```
 

@@ -77,7 +77,7 @@ async def play_store(request):
         final_dict['response'] = True
         final_dict['message'] = 'done'
         final_dict['results']['scores'] = apps
-        final_dict['results']['reviews'] = loads(get('https://still-plateau-10039.herokuapp.com/reviews?id={}'.format(id)).content)
+        final_dict['results']['reviews'] = loads(get('https://still-plateau-10039.herokuapp.com/reviews?id={}'.format(apps['id'])).content)
 
         for review in final_dict['results']['reviews']:
             review = clean_play_store_review(review)
@@ -123,7 +123,7 @@ async def news(request):
     final_dict = {'response': False, 'message': 'arguments are missing', 'results': []}
 
     try:
-        topic = request.args['topic'][0]
+        topic = request.args['topic'][0].split(' ')[0]
         lang = request.args['lang'][0]
     except:
         return json(final_dict)
@@ -135,9 +135,10 @@ async def news(request):
     from feedparser import parse
     from newspaper import Article
 
-    feed = parse('https://news.google.com/rss/search?q={0}&hl={1}-US&gl=US&ceid=US:{1}'.format(topic, lang))
+    feed = parse('https://news.google.com/rss/search?q={0}&hl=ru&gl=UA&ceid=UA:ru'.format(topic, lang))
 
     for entry in feed.entries[:10]:
+        print(entry)
         try:
             news = Article(entry.link)
             news.download()

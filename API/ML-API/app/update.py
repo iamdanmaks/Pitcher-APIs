@@ -28,9 +28,13 @@ def update_play_store(conducted_research, clf, app_id='', app_name='', app_dev='
     
     for rev in data['results']['reviews']:
         try:
-            review = PlayStoreReview(id=rev['id'], rate=rev['score'], 
+            review = PlayStoreReview(
+                id=rev['id'],
+                playStoreResearchId=result.id, 
+                rate=rev['score'], 
                 text=rev['text'], 
-                sentimentScore=generate_sentiment_score(rev['text'], analyzer_name=clf))
+                sentimentScore=generate_sentiment_score(rev['text'], analyzer_name=clf)
+            )
             result.reviews.append(review)
             db.session.add(review)
         
@@ -41,7 +45,51 @@ def update_play_store(conducted_research, clf, app_id='', app_name='', app_dev='
 
 
 def update_twitter(conducted_research, clf, keywords):
-    pass
+    from app.models import TwitterResearch, Tweet
+    from datetime import datetime
+
+
+    result = TwitterResearch(id=conducted_research.id)
+
+    try:
+        data = loads(get(
+            'http://localhost:8000/scraper/api/v1.0/data/twitter?topic={0}&min={1}'.format(
+                keywords, 201
+            )
+        ).content)
+    except Exception as e:
+        print(e)
+        return {}
+    
+    count = 0
+    pos_count = 0
+    neg_count = 0
+    
+    new_d = []
+    for x in data['tweets']:
+        if x not in new_d:
+            new_d.append(x)
+    
+    data['tweets'] = new_d
+
+    for tweet in data['tweets']:
+        try:
+            twt = Tweet(
+                id=tweet['id'],
+                twitterResearchId=result.id,
+                text=tweet['text'],
+                authorUserName=tweet['user'],
+                authorFullName=tweet['fullname'],
+                source=tweet['url'],
+                timestamp=datetime.strptime(tweet['timestamp'], '%Y-%m-%d %H:%M:%S'),
+                sentimentScore=generate_sentiment_score(tweet['text'], analyzer_name=clf)
+            )
+            result.tweets.append(twt)
+            db.session.add(twt)
+        except Exception as e:
+            print(e)
+    
+    return result
 
 
 def update_news(conducted_research, clf, search_query, preffered_language):
@@ -56,7 +104,7 @@ def update_news(conducted_research, clf, search_query, preffered_language):
             )
         ).content)
     except:
-        return object()
+        return {}
 
     count = 0
     pos_count = 0
@@ -66,15 +114,15 @@ def update_news(conducted_research, clf, search_query, preffered_language):
         try:
             artcl = NewsArticle(
                 link=article['link'], 
-                source=article['source'], 
+                news_id=result.id,
                 text=article['text'], 
                 title=article['title']
             )
             result.news_list.append(artcl)
             db.session.add(artcl)
         
-        except:
-            continue
+        except Exception as e:
+            print(e)
 
     result.amount = count
     result.pos_count_general = pos_count
@@ -86,15 +134,33 @@ def update_news(conducted_research, clf, search_query, preffered_language):
 def update_trends(res_id, clf, query, lang, reg):
     from app.models import SearchTrends, DayInterest, RelatedTopic, TopQuery, RisingQuery
     
-    search = SearchTrends()
-    search.id = res_id
+    print('\n\n\n',res_id,'\n\n\n')
+
+    search = db.session.query(SearchTrends).filter(SearchTrends.id == res_id).first()
+    #search = SearchTrends.query.filter_by(id=res_id).first()
 
     try:
         data = loads(get('http://localhost:8000/scraper/api/v1.0/data/trends?topic={}&lang={}&reg={}'.format(query, lang, reg)).content)
     except:
-        return object()
+        return {}
     
     search.query = query
+
+    for q in search.days:
+        db.session.delete(q)
+        search.days.remove(q)
+    
+    for q in search.related:
+        db.session.delete(q)
+        search.related.remove(q)
+    
+    for q in search.top:
+        db.session.delete(q)
+        search.top.remove(q)
+    
+    for q in search.rising:
+        db.session.delete(q)
+        search.rising.remove(q)
 
     from datetime import datetime
 
@@ -196,5 +262,5 @@ def update_trends(res_id, clf, query, lang, reg):
             
         else:
             rise_ex.value = int(temp['value'][str(ind)])
-
-    return search
+    
+    db.session.commit()

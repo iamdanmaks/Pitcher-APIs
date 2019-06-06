@@ -30,11 +30,13 @@ class UserRegistration(Resource):
         new_user.email = data['email']
         new_user.isCompany = bool(data['isCompany'])
         new_user.fullname = data['fullname']
+        new_user.subType = 'basic'
 
         try:
+            new_user.active = True
             new_user.save_to_db()
-            access_token = create_access_token(identity = data['username'])
-            refresh_token = create_refresh_token(identity = data['username'])
+            access_token = create_access_token(identity = {'username': data['username'], 'subscription': new_user.subType})
+            refresh_token = create_refresh_token(identity = {'username': data['username'], 'subscription': new_user.subType})
             return {
                 'response': True,
                 'message': 'User {} was created'.format(data['username']),
@@ -62,8 +64,10 @@ class UserLogin(Resource):
             }, 400
         
         if current_user.check_password(data['user_password']):
-            access_token = create_access_token(identity = current_user.username)
-            refresh_token = create_refresh_token(identity = current_user.username)
+            current_user.active = True
+            current_user.save_to_db()
+            access_token = create_access_token(identity = {'username': current_user.username, 'subscription': current_user.subType})
+            refresh_token = create_refresh_token(identity = {'username': current_user.username, 'subscription': current_user.subType})
             return {
                 'response': True,
                 'message': 'Logged in as {}'.format(current_user.username),
@@ -77,6 +81,32 @@ class UserLogin(Resource):
                 'response': False,
                 'message': 'Wrong credentials'
             }, 500
+
+
+class UserInfo(Resource):
+    def get(self):
+        from flask import db
+        from app.models import followers, likes
+        from flask import request
+        keyword = request.args.get('id')
+
+        '''
+        company = User.find_by_id(
+            db.session.query(followers.c.follower_id).filter(followers.c.followed_id == )
+        )
+
+        def to_json(x):
+            return {
+                'id': x.id,
+                'username': x.username,
+                'fullname': x.fullname,
+                'biography': x.bio,
+                'isCompany': x.isCompany,
+                'online': x.active,
+                'worksFor': 
+            }
+        '''
+        return {}
 
 
 class OAuthAuthorize(Resource):
@@ -109,14 +139,16 @@ class OAuthFacebookCallback(Resource):
         if not user:
             user = User(
                 socialId=social_id, 
-                username=username, 
+                username=username + str(db.session.query(User).count()), 
                 email=email,
                 fullname=fullname
             )
+            user.subType = 'basic'
+            user.active = True
             user.save_to_db()
         
-        access_token = create_access_token(identity=user.username)
-        refresh_token = create_refresh_token(identity=user.username)
+        access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
+        refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
 
         return {
             'response': True,
@@ -153,10 +185,12 @@ class OAuthGoogleCallback(Resource):
                 email=email,
                 fullname=fullname
             )
+            user.active = True
+            user.subType = 'basic'
             user.save_to_db()
         
-        access_token = create_access_token(identity=user.username)
-        refresh_token = create_refresh_token(identity=user.username)
+        access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
+        refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
 
         return {
             'response': True,
@@ -169,7 +203,7 @@ class OAuthGoogleCallback(Resource):
 class UserChange(Resource):
     @jwt_required
     def put(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
         
         if current_user is not None:
@@ -221,7 +255,7 @@ class UserChange(Resource):
     
     @jwt_required
     def delete(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
         
         if current_user is None:
@@ -241,7 +275,7 @@ class UserChange(Resource):
 class Followers(Resource):
     @jwt_required
     def post(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         data = followers_parser.parse_args()
@@ -284,7 +318,7 @@ class Followers(Resource):
     
     @jwt_required
     def delete(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         data = followers_parser.parse_args()
@@ -326,7 +360,7 @@ class Followers(Resource):
     
     @jwt_required
     def get(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         if current_user is None:
@@ -341,6 +375,11 @@ class Followers(Resource):
 class UserLogoutAccess(Resource):
     @jwt_required
     def post(self):
+        current_username = get_jwt_identity()['username']
+        current_user = User.find_by_username(current_username)
+        user.active = False
+        user.save_to_db()
+
         jti = get_raw_jwt()['jti']
         try:
             revoked_token = RevokedTokenModel(jti = jti)
@@ -379,6 +418,7 @@ class AllUsers(Resource):
       
       
 class SecretResource(Resource):
+    @jwt_required
     def get(self):
         from flask import request
         keyword = request.args.get('keyword')
@@ -389,7 +429,8 @@ class SecretResource(Resource):
                 'username': x.username,
                 'fullname': x.fullname,
                 'biography': x.bio,
-                'isCompany': x.isCompany
+                'isCompany': x.isCompany,
+                'online': x.active
             }
 
         return {

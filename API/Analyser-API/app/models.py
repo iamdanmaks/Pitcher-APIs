@@ -77,7 +77,8 @@ class User(db.Model, UserMixin):
     sign_date = db.Column(db.DateTime, default=datetime.now())
     avatar_ = db.Column(db.String(300))
     isCompany = db.Column(db.Boolean(), nullable=False, server_default='0')
-
+    subType = db.Column(db.String(20))
+    
     my_researches = db.relationship(
         'UserResearchPermission',
         back_populates="users",
@@ -409,14 +410,6 @@ class Analyzer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
 
-    tweets = db.relationship(
-        'AnalyzedTweet',
-        back_populates="parent",
-        cascade='all, delete-orphan',
-        single_parent=True,
-        uselist=True
-    )
-
     play_store = db.relationship(
         'PlayStoreResearch',
         cascade='all, delete-orphan',
@@ -431,18 +424,12 @@ class Analyzer(db.Model):
         uselist=True
     )
 
-    twitter = db.relationship(
-        'TwitterResearch',
-        cascade='all, delete-orphan',
-        single_parent=True,
-        uselist=True
-    )
-
 
 class PlayStoreResearch(db.Model):
     __tablename__ = 'play_store_research'
 
     id = db.Column(db.Integer, db.ForeignKey('conducted_research.id'), primary_key=True)
+    name = db.Column(db.String(150))
     downloads = db.Column(db.String(20))
     averageRating = db.Column(db.Float)
     maxReviews = db.Column(db.Integer)
@@ -465,11 +452,14 @@ class PlayStoreReview(db.Model):
     __tablename__ = 'play_store_review'
 
     id = db.Column(db.String(100), primary_key=True)
+    playStoreResearchId = db.Column(
+            db.Integer, 
+            db.ForeignKey('play_store_research.id'),
+            primary_key=True
+        )
     rate = db.Column(db.Integer)
     text = db.Column(db.String(1000))
-    sentimentScore = db.Column(db.Integer)
-    isBot = db.Column(db.Boolean(), server_default='0')
-    playStoreResearchId = db.Column(db.Integer, db.ForeignKey('play_store_research.id'))
+    sentimentScore = db.Column(db.Float)
 
 
 class NewsResearch(db.Model):
@@ -500,7 +490,8 @@ class NewsArticle(db.Model):
     )
     title = db.Column(db.String(200))
     text = db.Column(db.String(16000000))
-    source = db.Column(db.String(100))
+    source = db.Column(db.Text)
+    sentimentScore = db.Column(db.Float)
 
 
 class SearchTrends(db.Model):
@@ -559,7 +550,7 @@ class RelatedTopic(db.Model):
         db.ForeignKey('search_trends.id'), 
         primary_key=True
     )
-    value = db.Column(db.Integer)
+    value = db.Column(db.Float)
     sentiment = db.Column(db.Float)
 
 
@@ -594,77 +585,14 @@ class TwitterResearch(db.Model):
 
     id = db.Column(db.Integer, db.ForeignKey('conducted_research.id'), primary_key=True)
     tweetsCount = db.Column(db.Integer)
-    analyzerId = db.Column(db.Integer, db.ForeignKey('analyzer.id'))
+    pos_count = db.Column(db.Integer)
+    neg_count = db.Column(db.Integer)
 
-    settings = db.relationship(
-        'TwitterResearchFilter',
+    tweets = db.relationship(
+        'Tweet',
         backref="TwitterResearch", 
         cascade="all, delete-orphan", 
         lazy='dynamic'
-    )
-
-    research_units = db.relationship(
-        'TwitterResearchUnit',
-        back_populates="parent",
-        cascade='all, delete-orphan',
-        single_parent=True,
-        uselist=True
-    )
-
-
-class TwitterResearchFilter(db.Model):
-    __tablename__ = 'twitter_research_filter'
-
-    twitterResearchId = db.Column(db.Integer, db.ForeignKey('twitter_research.id'), primary_key=True)
-    minLikes = db.Column(db.Integer)
-    minRetweets = db.Column(db.Integer)
-    minDate = db.Column(db.DateTime)
-    maxDate = db.Column(db.DateTime)
-
-
-class TwitterResearchUnit(db.Model):
-    __tablename__ = 'twitter_research_unit'
-
-    twitterResearchId = db.Column(db.Integer, db.ForeignKey('twitter_research.id'), primary_key=True)
-    tweetId = db.Column(db.Integer, db.ForeignKey('tweet.id'), primary_key=True)
-    likes = db.Column(db.Integer)
-    retweets = db.Column(db.Integer)
-
-    child = db.relationship(
-        "Tweet", 
-        back_populates="researches", 
-        cascade='all, delete-orphan', 
-        single_parent=True, 
-        uselist=True
-    )
-    
-    parent = db.relationship(
-        "TwitterResearch", 
-        back_populates="research_units", 
-        uselist=True
-    )
-
-
-class AnalyzedTweet(db.Model):
-    __tablename__ = 'analyzed_tweet'
-
-    twitterResearchId = db.Column(db.Integer, db.ForeignKey('analyzer.id'), primary_key=True)
-    tweetId = db.Column(db.Integer, db.ForeignKey('tweet.id'), primary_key=True)
-    sentimentScore = db.Column(db.Integer)
-    isBot = db.Column(db.Boolean(), server_default='0')
-
-    child = db.relationship(
-        "Tweet", 
-        back_populates="analysis", 
-        cascade='all, delete-orphan', 
-        single_parent=True, 
-        uselist=True
-    )
-    
-    parent = db.relationship(
-        "Analyzer", 
-        #back_populates="twitter", 
-        uselist=True
     )
 
 
@@ -672,17 +600,10 @@ class Tweet(db.Model):
     __tablename__ = 'tweet'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=False)
-    text = db.Column(db.String(280))
+    twitterResearchId = db.Column(db.Integer, db.ForeignKey('twitter_research.id'), primary_key=True)
+    text = db.Column(db.Text)
     timestamp = db.Column(db.DateTime)
-
-    researches = db.relationship(
-        "TwitterResearchUnit",
-        back_populates="child",
-        uselist=True
-    )
-
-    analysis = db.relationship(
-        "AnalyzedTweet",
-        back_populates="child",
-        uselist=True
-    )
+    authorUserName = db.Column(db.String(150))
+    authorFullName = db.Column(db.String(150))
+    source = db.Column(db.Text)
+    sentimentScore = db.Column(db.Float)

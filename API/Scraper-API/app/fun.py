@@ -53,19 +53,32 @@ def scrape_play_store_with_id(id):
         'span', {'class': 'AYi5wd TBRnV'}).get_text().replace(',', ''))
     
     results['histogram'] = {}
-    results['histogram']['1'] = int(
-        hist[4]['title'].replace('&nbsp;', '').replace(',', ''))
     
-    results['histogram']['2'] = int(
-        hist[3]['title'].replace('&nbsp;', '').replace(',', ''))
+    try:
+        score_gen = results['score'] * results['reviews']
+
+        four_percent = int(hist[1]['style'][hist[1]['style'].find(' ') + 1 : -1]) / 100
+        three_percent = int(hist[2]['style'][hist[2]['style'].find(' ') + 1 : -1]) / 100
+        two_percent = int(hist[3]['style'][hist[3]['style'].find(' ') + 1 : -1]) / 100
+        one_percent = int(hist[4]['style'][hist[4]['style'].find(' ') + 1 : -1]) / 100
+
+        five_count = score_gen / (1 + four_percent + three_percent + two_percent + one_percent)
+
+        results['histogram']['1'] = int(one_percent * five_count)
+        
+        results['histogram']['2'] = int((two_percent * five_count) / 2)
+        
+        results['histogram']['3'] = int((three_percent * five_count) / 3)
+        
+        results['histogram']['4'] = int((four_percent * five_count) / 4)
+        
+        results['histogram']['5'] = int(five_count / 5)
+
+        results['reviews'] = results['histogram']['1'] + results['histogram']['2'] + results['histogram']['3']
+        results['reviews'] += results['histogram']['4'] + results['histogram']['5']
     
-    results['histogram']['3'] = int(
-        hist[2]['title'].replace('&nbsp;', '').replace(',', ''))
-    
-    results['histogram']['4'] = int(
-        hist[1]['title'].replace('&nbsp;', '').replace(',', ''))
-    
-    results['histogram']['5'] = int(
-        hist[0]['title'].replace('&nbsp;', '').replace(',', ''))
-    
+    except Exception as e:
+        print('\n\n\n',e,'\n\n\n')
+        results['histogram'] = 'score is too low or there is too small number of reviews'
+
     return results

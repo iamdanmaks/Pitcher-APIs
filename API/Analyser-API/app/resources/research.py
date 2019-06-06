@@ -8,12 +8,41 @@ from app.resources.request_parser import (research_filters,
     create_research, subscriptions_likes_parser)
 
 
+def get_paginated_list(results, url, start, limit):
+    start = int(start)
+    limit = int(limit)
+    count = len(results)
+    if count < start or limit < 0:
+        abort(404)
+    
+    obj = {}
+    obj['start'] = start
+    obj['limit'] = limit
+    obj['count'] = count
+    
+    if start == 1:
+        obj['previous'] = ''
+    else:
+        start_copy = max(1, start - limit)
+        limit_copy = start - 1
+        obj['previous'] = url + '?start=%d&limit=%d' % (start_copy, limit_copy)
+    
+    if start + limit > count:
+        obj['next'] = ''
+    else:
+        start_copy = start + limit
+        obj['next'] = url + '?start=%d&limit=%d' % (start_copy, limit)
+    
+    obj['results'] = results[(start - 1):(start - 1 + limit)]
+    return obj
+
+
 class MyResearch(Resource):
     @jwt_required
     def post(self):
         data = create_research.parse_args()
         
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         try:
@@ -119,8 +148,47 @@ class MyResearch(Resource):
                 ).all())
             }
         
+    @jwt_required
     def put(self):
-        pass
+        from flask import request
+        from sqlalchemy import and_
+        from requests import get
+        from json import loads
+
+        res_id = int(request.args.get('id'))
+        current_username = get_jwt_identity()['username']
+        current_user = User.find_by_username(current_username)
+
+        permissions = db.session.query(UserResearchPermission).filter(
+            and_(UserResearchPermission.userId == current_user.id,
+                UserResearchPermission.researchId == res_id)
+        ).first()
+
+        if permissions is None:
+            return {
+                "message": "You don't have permission to edit this research"
+            }, 400
+        
+        response = get('http://localhost:5000/ml/api/v1.0/update/{}'.format(res_id)).content
+        print(response)
+        response = loads(response)
+        
+        if response['done'] == False:
+            return {
+                "message": "Internal server error"
+            }, 500
+
+        current_res = Research.find_by_id(res_id)
+        itters = ConductedResearch.query.filter_by(researchId=res_id).all()
+        print(itters[-1].id)
+
+        current_res.conducted.append(itters[-1])
+        db.session.add(itters[-1])
+        db.session.commit()
+
+        return {
+            "message": "updated"
+        }
 
 
 class MyResearches(Resource):
@@ -130,7 +198,8 @@ class MyResearches(Resource):
         from sqlalchemy import desc
         keyword = request.args.get('keyword')
 
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
+        print(current_username)
         current_user = User.find_by_username(current_username)
 
         data = {}
@@ -236,10 +305,12 @@ class MyResearches(Resource):
         if request.args.get('analyser') is not None:
             result = [x for x in result if x.algos == request.args.get('analyser')]
 
-        return {
-            'response': True,
-            'results': list(map(lambda x: to_json(x), result))
-        }
+        return get_paginated_list(
+            list(map(lambda x: to_json(x), result)), 
+            '/research/my', 
+            start=request.args.get('start', 1), 
+            limit=request.args.get('limit', 20)
+        )
 
 
 class UsersResearches(Resource):
@@ -356,10 +427,12 @@ class UsersResearches(Resource):
         if request.args.get('analyser') is not None:
             result = [x for x in result if x.algos == request.args.get('analyser')]
 
-        return {
-            'response': True,
-            'results': list(map(lambda x: to_json(x), result))
-        }
+        return get_paginated_list(
+            list(map(lambda x: to_json(x), result)), 
+            '/user/researches', 
+            start=request.args.get('start', 1), 
+            limit=request.args.get('limit', 20)
+        )
 
 
 class SearchResearches(Resource):
@@ -403,7 +476,7 @@ class SearchResearches(Resource):
         if keyword is None or keyword == '' or len(keyword) <= 3:
             result = Research.query.all()[::-1]
 
-        if request.args.get('sort_way') is None or request.args.get('sort_way') == 'creation':
+        elif request.args.get('sort_way') is None or request.args.get('sort_way') == 'creation':
             result = Research.query.whooshee_search(
                 keyword).filter(Research.type_of_research == True).order_by(
                     desc(Research.creationDate)).all()[::-1]
@@ -475,16 +548,18 @@ class SearchResearches(Resource):
         elif request.args.get('isCompany') is not None and int(request.args.get('isCompany')) == 0:
             result = [x for x in result if User.query.filter_by(id=x.ownerId).first().isCompany is False]
 
-        return {
-            'response': True,
-            'results': list(map(lambda x: to_json(x), result))
-        }
+        return get_paginated_list(
+            list(map(lambda x: to_json(x), result)), 
+            '/research/search', 
+            start=request.args.get('start', 1), 
+            limit=request.args.get('limit', 20)
+        )
 
 
 class ResearchSubscription(Resource):
     @jwt_required
     def post(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         data = subscriptions_likes_parser.parse_args()
@@ -514,7 +589,7 @@ class ResearchSubscription(Resource):
     
     @jwt_required
     def delete(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         data = subscriptions_likes_parser.parse_args()
@@ -544,7 +619,7 @@ class ResearchSubscription(Resource):
     
     @jwt_required
     def get(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         if current_user is None:
@@ -559,7 +634,7 @@ class ResearchSubscription(Resource):
 class ResearchLike(Resource):
     @jwt_required
     def post(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         data = subscriptions_likes_parser.parse_args()
@@ -589,7 +664,7 @@ class ResearchLike(Resource):
     
     @jwt_required
     def delete(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         data = subscriptions_likes_parser.parse_args()
@@ -619,7 +694,7 @@ class ResearchLike(Resource):
     
     @jwt_required
     def get(self):
-        current_username = get_jwt_identity()
+        current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
 
         if current_user is None:
@@ -674,14 +749,42 @@ class ResearchViews(Resource):
 class ResearchPlayStore(Resource):
     def get(self):
         from flask import request
-        res = Research.find_by_id(request.args.get('research_id'))
+        res = Research.find_by_id(int(request.args.get('research_id')))
+        
+        def to_json(x):
+            return {
+                "rate": x.rate,
+                "text": x.text,
+                "sentiment": x.sentimentScore
+            }
 
-        return {
+        try:
+            from app.models import PlayStoreResearch, PlayStoreReview
+            pl_res = PlayStoreResearch.query.filter_by(id=res.id).first()
+            pl_reviews = PlayStoreReview.query.filter_by(playStoreResearchId=res.id).all()
 
-        }
-    
-    def put(self):
-        pass
+            return {
+                "hist": {
+                    "one": pl_res.rateOneCount,
+                    "two": pl_res.rateTwoCount,
+                    "three": pl_res.rateThreeCount,
+                    "four": pl_res.rateFourCount,
+                    "five": pl_res.rateFiveCount
+                },
+                "app_info": {
+                    "name": pl_res.name,
+                    "rate": pl_res.averageRating,
+                    "downloads": pl_res.downloads,
+                    "reviews": pl_res.maxReviews,
+                    "not_clear_reviews": pl_res.maxReviews - int(0.25 - pl_res.maxReviews)
+                },
+                "top_reviews": list(map(lambda x: to_json(x), list(pl_reviews)))
+            }
+
+        except:
+            return {
+                "message": "internal server error"
+            }, 500
 
 
 class ResearchTwitter(Resource):
@@ -715,9 +818,8 @@ class ResearchSearch(Resource):
         from flask import request
         res = Research.find_by_id(request.args.get('research_id'))
 
+
+
         return {
 
         }
-    
-    def put(self):
-        pass

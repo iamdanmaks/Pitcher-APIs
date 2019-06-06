@@ -295,7 +295,7 @@ Analyser-API endpoints:
   
   Тоже самое для подписок, но url меняется на http://localhost:5080/research/subscribe
 
-Информация по модулям получается по следующей ссылке: http://localhost:5080/research/<name of module>?res_id={}
+**Информация по модулям получается по следующей ссылке: http://localhost:5080/research/<name of module>?res_id={}**
 
 17. Информация про твиттер в исследовании (метод **GET**)
 

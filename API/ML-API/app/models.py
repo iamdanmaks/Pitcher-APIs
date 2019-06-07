@@ -527,11 +527,30 @@ class SearchTrends(db.Model):
         lazy='dynamic'
     )
 
+    countries = db.relationship(
+        'CountryInterest',
+        backref="SearchTrends", 
+        cascade="all, delete-orphan", 
+        lazy='dynamic'
+    )
+
 
 class DayInterest(db.Model):
     __tablename__ = 'day_interest'
 
     date = db.Column(db.DateTime, primary_key=True)
+    search_id = db.Column(
+        db.Integer, 
+        db.ForeignKey('search_trends.id'), 
+        primary_key=True
+    )
+    interest = db.Column(db.Integer)
+
+
+class CountryInterest(db.Model):
+    __tablename__ = 'country_interest'
+
+    country = db.Column(db.String(150), primary_key=True)
     search_id = db.Column(
         db.Integer, 
         db.ForeignKey('search_trends.id'), 

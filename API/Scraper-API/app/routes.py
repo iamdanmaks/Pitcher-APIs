@@ -48,9 +48,16 @@ async def google_trends(request):
     rel_topics.drop('mid', axis=1, inplace=True)
 
     rel_queries = pytrends.related_queries()[topic[0]]
-    
+
+    countries = pytrends.interest_by_region(resolution='COUNTRY')
+    countries = countries[(countries.T != 0).any()]
+
+    from json import loads
+
+    countries = loads(countries.to_json())[topic[0]]
+
     return json({'message':'done', 'response': True, 'result': {'interest': res.to_json(), 'related_topics': rel_topics.to_json(), 
-    'top_queries': rel_queries['top'].to_json(), 'rising_queries': rel_queries['rising'].to_json() }})
+    'top_queries': rel_queries['top'].to_json(), 'rising_queries': rel_queries['rising'].to_json(), 'counties': countries}})
 
 
 @app.route('/scraper/api/v1.0/data/play_store', methods=['GET'])

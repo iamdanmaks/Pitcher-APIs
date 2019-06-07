@@ -132,7 +132,7 @@ def update_news(conducted_research, clf, search_query, preffered_language):
 
 
 def update_trends(res_id, clf, query, lang, reg):
-    from app.models import SearchTrends, DayInterest, RelatedTopic, TopQuery, RisingQuery
+    from app.models import SearchTrends, DayInterest, RelatedTopic, TopQuery, RisingQuery, CountryInterest
     
     print('\n\n\n',res_id,'\n\n\n')
 
@@ -162,13 +162,31 @@ def update_trends(res_id, clf, query, lang, reg):
         db.session.delete(q)
         search.rising.remove(q)
 
+    for q in search.countries:
+        db.session.delete(q)
+        search.rising.remove(q)
+
+    for countries, interests in loads(data['result']['countries']).items():
+        try:
+            cntr = CountryInterest(
+                country=countries,
+                interest=interests,
+                search_id=search.id
+            )
+            search.countries.append(cntr)
+            db.session.add(cntr)
+
+        except Exception as e:
+            print(e)
+
     from datetime import datetime
 
     for qdate, qinterest in loads(data['result']['interest'])[query].items():
         try:
             day = DayInterest(
                 date=datetime.fromtimestamp(int(qdate) / 1000),
-                interest = int(qinterest) 
+                interest = int(qinterest),
+                search_id=search.id 
             )
             search.days.append(day)
             db.session.add(day)
@@ -194,7 +212,8 @@ def update_trends(res_id, clf, query, lang, reg):
                     sentiment=generate_sentiment_score(
                         temp['title'][str(ind)],
                         clf
-                    )
+                    ),
+                    search_id=search.id
                 )
                 search.related.append(day)
                 db.session.add(day)
@@ -223,7 +242,8 @@ def update_trends(res_id, clf, query, lang, reg):
                     sentiment=generate_sentiment_score(
                         temp['query'][str(ind)],
                         clf
-                    )
+                    ),
+                    search_id=search.id
                 )
                 search.top.append(top)
                 db.session.add(top)
@@ -252,7 +272,8 @@ def update_trends(res_id, clf, query, lang, reg):
                     sentiment=generate_sentiment_score(
                         temp['query'][str(ind)],
                         clf
-                    )
+                    ),
+                    search_id=search.id
                 )
                 search.rising.append(rise)
                 db.session.add(rise)

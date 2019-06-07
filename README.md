@@ -383,7 +383,7 @@ Analyser-API endpoints:
     {
         "popularity":[
             {
-                "date": "mm.YYYY",
+                "date": "dd.mm.YYYY",
                 "rate": 1
             }
         ],

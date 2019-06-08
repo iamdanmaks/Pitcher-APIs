@@ -821,37 +821,42 @@ class ResearchSearch(Resource):
         start = request.args.get('start')
         end = request.args.get('end')
 
-        result = {
-            'popularity': [],
-            'countries': [],
-            'related': []
-        }
+        try:
+            result = {
+                'popularity': [],
+                'countries': [],
+                'related': []
+            }
 
-        for d in search.days:
-            result['popularity'].append(
-                {
-                    'date': d.date.strftime('%d.%m.%Y'),
-                    'rate': d.interest
-                }
-            )
-        
-        if start is not None:
-            start = datetime.strptime(start, '%d.%m.%Y')
-            result['popularity'] = [x for x in result['popularity'] if x.creationDate >= start]
+            for d in search.days:
+                result['popularity'].append(
+                    {
+                        'date': d.date.strftime('%d.%m.%Y'),
+                        'rate': d.interest
+                    }
+                )
+            
+            if start is not None:
+                start = datetime.strptime(start, '%d.%m.%Y')
+                result['popularity'] = [x for x in result['popularity'] if x.creationDate >= start]
 
-        if end is None:
-            end = datetime.strptime(end, '%d.%m.%Y') + timedelta(days=1)
-            result['popularity'] = [x for x in result['popularity'] if x.creationDate <= start]
+            if end is None:
+                end = datetime.strptime(end, '%d.%m.%Y') + timedelta(days=1)
+                result['popularity'] = [x for x in result['popularity'] if x.creationDate <= start]
 
-        for c in search.countries:
-            result['countries'].append(
-                {
-                    'country': c.country,
-                    'rate': c.interest
-                }
-            )
+            for c in search.countries:
+                result['countries'].append(
+                    {
+                        'country': c.country,
+                        'rate': c.interest
+                    }
+                )
 
-        for r in search.related:
-            result['related'].append(r.topic)
+            for r in search.related:
+                result['related'].append(r.topic)
+        except:
+            result = {
+                "message": "Internal error or no instances in database"
+            }
 
         return result

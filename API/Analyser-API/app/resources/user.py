@@ -121,7 +121,7 @@ class OAuthAuthorize(Resource):
 
 class OAuthFacebookCallback(Resource):
     def get(self):
-        from flask import request
+        from flask import request, redirect
         provider = request.args.get('provider')
         
         from app.oauth import OAuthSignIn
@@ -150,17 +150,14 @@ class OAuthFacebookCallback(Resource):
         access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
         refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
 
-        return {
-            'response': True,
-            'message': 'Logged in as {}.'.format(user.username),
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        }
+        return redirect('http://localhost:4200/oauth_redirect?access_token={0}&refresh_token={1}'.format(
+            access_token, refresh_token
+        ))
 
 
 class OAuthGoogleCallback(Resource):
     def get(self):
-        from flask import request
+        from flask import request, redirect
         provider = request.args.get('provider')
         
         from app.oauth import OAuthSignIn
@@ -192,12 +189,9 @@ class OAuthGoogleCallback(Resource):
         access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
         refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
 
-        return {
-            'response': True,
-            'message': 'Logged in as {}.'.format(user.username),
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        }
+        return redirect('http://localhost:4200/oauth_redirect?access_token={0}&refresh_token={1}'.format(
+            access_token, refresh_token
+        ))
 
 
 class UserChange(Resource):

@@ -470,7 +470,7 @@ class SearchResearches(Resource):
                 'creation': x.creationDate.strftime('%d.%m.%Y'),
                 'views': x.views,
                 'likes': len(db.session.query(likes).filter(likes.c.research_id == x.id).all()),
-                'likes': len(db.session.query(subscriptions).filter(subscriptions.c.research_id == x.id).all())
+                'subscriptions': len(db.session.query(subscriptions).filter(subscriptions.c.research_id == x.id).all())
             }
 
         if keyword is None or keyword == '' or len(keyword) <= 3:

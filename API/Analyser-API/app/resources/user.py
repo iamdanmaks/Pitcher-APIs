@@ -165,7 +165,7 @@ class OAuthGoogleCallback(Resource):
 
         oauth = OAuthSignIn.get_provider(provider)
         social_id, email, fullname = oauth.callback()
-        username = fullname.split(' ')[0] + str(db.session.query(User).count())
+        username = fullname + str(db.session.query(User).count())
 
         if social_id is None:
             return {

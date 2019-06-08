@@ -130,7 +130,7 @@ async def news(request):
     final_dict = {'response': False, 'message': 'arguments are missing', 'results': []}
 
     try:
-        topic = request.args['topic'][0].split(' ')[0]
+        topic = request.args['topic'][0]
         lang = request.args['lang'][0]
     except:
         return json(final_dict)

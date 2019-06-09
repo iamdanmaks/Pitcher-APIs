@@ -130,7 +130,8 @@ def update_news(conducted_research, clf, search_query, preffered_language):
                 news_id=result.id,
                 text=article['text'], 
                 title=article['title'],
-                sentimentScore=temp
+                sentimentScore=temp,
+                source=article['source']['href'] + '||' + article['source']['title']
             )
             result.news_list.append(artcl)
             db.session.add(artcl)

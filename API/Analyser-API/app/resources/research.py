@@ -831,10 +831,19 @@ class ResearchTwitter(Resource):
 
             word_counter = Counter(wordcount).most_common(10)
 
+            freq_words = []
+
+            for w in word_counter:
+                freq_words.append(
+                    {
+                        w[0]: w[1]
+                    }
+                )
+
             return {
                 'popularity_rate': timeline,
                 'sentiment': sentiment,
-                'frequent_words': word_counter,
+                'frequent_words': freq_words,
                 'tweets': [{'url': t.source, 'sentiment': t.sentimentScore} for t in tweets]
             }
         
@@ -848,9 +857,49 @@ class ResearchNews(Resource):
     def get(self):
         from flask import request
         res = Research.find_by_id(request.args.get('research_id'))
+        itter = res.conducted[-1].news[0]
+
+        articles = itter.articles
+
+        sentiment = {
+            'positive_percent': (itter.pos_count / itter.amount) * 100,
+            'negative_percent': (itter.neg_count / itter.amount) * 100,
+            'neutral_percent': ((itter.amount - itter.pos_count - itter.neg_count) / itter.amount) * 100
+        }
+
+        news_art = [{
+                'source': a.source.split('||')[0],
+                'source_url': a.source.split('||')[1],
+                'title': a.title,
+                'url': a.link
+            } for a in articles]
+
+        import nltk
+        nltk.download("stopwords")
+
+        from nltk.corpus import stopwords
+        from string import punctuation
+
+        stop_words = set(stopwords.words('english')).union(set(stopwords.words("russian")))
+        text = ' '.join([t.text.lower() for t in articles])
+
+        wordscount = {}
+
+        for word in text.split():
+            if word not in stop_words or word not in ['the', 'a', 'an', 'and']:
+                if word not in wordcount:
+                    wordscount[word] = 1
+                else:
+                    wordscount[word] += 1
+
+        from collections import Counter
+
+        word_counter = [w[0] for w in Counter(wordcount).most_common(10)]
 
         return {
-
+            'news': news_art,
+            'words': word_counter,
+            'sentiment': sentiment
         }
 
 

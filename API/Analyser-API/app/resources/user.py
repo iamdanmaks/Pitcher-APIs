@@ -371,8 +371,8 @@ class UserLogoutAccess(Resource):
     def post(self):
         current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
-        user.active = False
-        user.save_to_db()
+        current_user.active = False
+        current_user.save_to_db()
 
         jti = get_raw_jwt()['jti']
         try:

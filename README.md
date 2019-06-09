@@ -316,12 +316,9 @@ Analyser-API endpoints:
     
     ```json
     {
-        "popularity_rate": [
-            {
-                "date": "",
-                "rate": 1
-            }
-        ],
+        "popularity_rate": {
+                "YYYY-mm": 1
+            },
         "sentiment": {
             "positive_percent": 33,
             "neutral_percent": 33,

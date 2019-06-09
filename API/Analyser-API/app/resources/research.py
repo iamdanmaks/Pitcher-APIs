@@ -789,15 +789,59 @@ class ResearchPlayStore(Resource):
 
 class ResearchTwitter(Resource):
     def get(self):
-        from flask import request
-        res = Research.find_by_id(request.args.get('research_id'))
+        try:
+            from flask import request
+            import pandas as pd
+            res = Research.find_by_id(request.args.get('research_id'))
+            itter = res.conducted[-1].twitter[0]
 
-        return {
+            tweets = itter.tweets
 
-        }
-    
-    def put(self):
-        pass
+            tweets_dates = [t.timestamp.strftime("%d.%m.%Y") for t in tweets]
+            timeline = pd.to_datetime(pd.Series(tweets_dates), format='%d.%m.%Y')
+            timeline.index = timeline.dt.to_period('m')
+            timeline = timeline.groupby(level=0).size()
+            timeline = dict(zip(timeline.index.format(), timeline))
+
+            sentiment = {
+                'positive_percent': (itter.pos_count / itter.tweetsCount) * 100,
+                'negative_percent': (itter.neg_count / itter.tweetsCount) * 100,
+                'neutral_percent': ((itter.tweetsCount - itter.pos_count - itter.neg_count) / itter.tweetsCount) * 100
+            }
+
+            import nltk
+            nltk.download("stopwords")
+
+            from nltk.corpus import stopwords
+            from string import punctuation
+
+            stop_words = set(stopwords.words('english')).union(set(stopwords.words("russian")))
+            text = ' '.join([t.text.lower() for t in tweets])
+
+            wordscount = {}
+
+            for word in text.split():
+                if word not in stop_words or word not in ['the', 'a', 'an', 'and']:
+                    if word not in wordcount:
+                        wordscount[word] = 1
+                    else:
+                        wordscount[word] += 1
+
+            from collections import Counter
+
+            word_counter = Counter(wordcount).most_common(10)
+
+            return {
+                'popularity_rate': timeline,
+                'sentiment': sentiment,
+                'frequent_words': word_counter,
+                'tweets': [{'url': t.source, 'sentiment': t.sentimentScore} for t in tweets]
+            }
+        
+        except:
+            return {
+                "message": "Internal server error or no research"
+            }
 
 
 class ResearchNews(Resource):
@@ -808,9 +852,6 @@ class ResearchNews(Resource):
         return {
 
         }
-    
-    def put(self):
-        pass
 
 
 class ResearchSearch(Resource):

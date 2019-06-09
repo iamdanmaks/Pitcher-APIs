@@ -74,6 +74,7 @@ def update_twitter(conducted_research, clf, keywords):
 
     for tweet in data['tweets']:
         try:
+            temp = generate_sentiment_score(tweet['text'], analyzer_name=clf)
             twt = Tweet(
                 id=tweet['id'],
                 twitterResearchId=result.id,
@@ -82,13 +83,24 @@ def update_twitter(conducted_research, clf, keywords):
                 authorFullName=tweet['fullname'],
                 source=tweet['url'],
                 timestamp=datetime.strptime(tweet['timestamp'], '%Y-%m-%d %H:%M:%S'),
-                sentimentScore=generate_sentiment_score(tweet['text'], analyzer_name=clf)
+                sentimentScore=temp
             )
             result.tweets.append(twt)
             db.session.add(twt)
+
+            if temp > 6.0:
+                pos_count += 1
+            elif temp < 4.0:
+                neg_count += 1
+            count += 1
+
         except Exception as e:
             print(e)
     
+    result.pos_count = pos_count
+    result.neg_count = neg_count
+    result.tweetsCount = count
+
     return result
 
 
@@ -112,15 +124,23 @@ def update_news(conducted_research, clf, search_query, preffered_language):
     
     for article in data['results']:
         try:
+            temp = generate_sentiment_score(article['text'], analyzer_name=clf)
             artcl = NewsArticle(
                 link=article['link'], 
                 news_id=result.id,
                 text=article['text'], 
-                title=article['title']
+                title=article['title'],
+                sentimentScore=temp
             )
             result.news_list.append(artcl)
             db.session.add(artcl)
         
+            if temp > 6.0:
+                pos_count += 1
+            elif temp < 4.0:
+                neg_count += 1
+            count += 1
+
         except Exception as e:
             print(e)
 

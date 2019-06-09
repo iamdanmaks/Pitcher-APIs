@@ -274,6 +274,8 @@ Analyser-API endpoints:
 
     Получаешь по ссылке, где все параметры необязательны кроме **keyword**: http://localhost:5080/research/search?keyword={}&sorting=creation/last_update/views/popularity/subscribers&start_date={dd.mm.YYYY}&end_date={dd.mm.YYYY}&analyser=vader/polyglot&isCompany=0/1&modules=play_store/search/twitter/news
     
+    Чтобы использовать пагинацию передавайте ещё параметры start, limit. Если не передашь, то start = 1, limit = 20.
+    
     Возвращает:
     
     ```json
@@ -289,7 +291,12 @@ Analyser-API endpoints:
                     "likes": int,
                     "subscriptions": int
                 },...
-            ]
+            ],
+            "next": "link to next part of a list",
+            "previous": "link to previous part of a list",
+            "start": 1,
+            "limit": 1,
+            "count": 1
         }
     ```
 

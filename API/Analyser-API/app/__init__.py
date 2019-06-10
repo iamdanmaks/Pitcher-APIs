@@ -9,7 +9,7 @@ from flask_login import LoginManager
 from config import Config
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-import paypalrestsdk
+#import paypalrestsdk
 
 
 app = Flask(__name__)
@@ -25,6 +25,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 whooshee = Whooshee()
 whooshee.init_app(app)
+'''
 paypalrestsdk.configure({
   "mode": 'sandbox',
   "client_id": app.config.PAYPAL_CREDENTIALS['id'],
@@ -63,7 +64,7 @@ def init_plans():
             }
         }
     })
-    
+
     premium_plan = BillingPlan({
         "name": "Premium subscription plan",
         "description": "Subscription which lets you work without any limitations",
@@ -91,7 +92,7 @@ def init_plans():
             }
         }
     })
-
+'''
 
 from app import routes, models
 from app.resources import user, research

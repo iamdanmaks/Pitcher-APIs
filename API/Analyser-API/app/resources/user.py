@@ -122,12 +122,15 @@ class OAuthAuthorize(Resource):
 class OAuthFacebookCallback(Resource):
     def get(self):
         from flask import request, redirect
+        from app import db
         provider = request.args.get('provider')
         
         from app.oauth import OAuthSignIn
         oauth = OAuthSignIn.get_provider(provider)
         social_id, email, fullname, username = oauth.callback()
         
+        email = 'facebook$' + email
+
         if social_id is None:
             return {
                 'response': False,
@@ -166,6 +169,8 @@ class OAuthGoogleCallback(Resource):
         oauth = OAuthSignIn.get_provider(provider)
         social_id, email, fullname = oauth.callback()
         username = fullname + str(db.session.query(User).count())
+
+        email = 'google$' + email
 
         if social_id is None:
             return {
@@ -430,3 +435,23 @@ class SecretResource(Resource):
         return {
             'message': list(map(lambda x: to_json(x), User.query.whooshee_search(keyword).all()))
         }
+
+
+class PaymentPro(Resource):
+    def post(self):
+        pass
+
+
+class ExecutePro(Resource):
+    def post(self):
+        pass
+
+
+class PaymentPremium(Resource):
+    def post(self):
+        pass
+
+
+class ExecutePremium(Resource):
+    def post(self):
+        pass

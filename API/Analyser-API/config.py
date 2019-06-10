@@ -18,11 +18,15 @@ class Config:
     MSEARCH_ENABLE = True
     OAUTH_CREDENTIALS = {
         'facebook': {
-            'id': '451028598976296',
-            'secret': 'cf7c2ba23b5fed2f97a77fb96fc52e2b'
+            'id': '443486133105311',
+            'secret': '532d4f236249cd80e0d3a5f342c07716'
         },
         'google': {
             'id': '175438313875-vbd9cnjbu1otu9jj0r1pgge748sae0gj.apps.googleusercontent.com',
             'secret': 'fvsIS_xMSKzuxi_GZROO8EI_'
         }
+    }
+    PAYPAL_CREDENTIALS = {
+        'id': 'AXfPjvv2CqzuvZoNb4UvCg8Z5nYPa81E4mDa3m-isVAFn862zkbsAeuB781ivzvKSYNjnuZtLM0V-hew',
+        'secret': 'EITiF_A9y3PkQIpkAoqtbP_bn4edR48HTjVAt9o7Nobj7mN4BidyUW03viSxgR9uGY4spHhzq4ak5tAi'
     }

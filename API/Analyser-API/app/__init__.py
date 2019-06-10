@@ -9,6 +9,7 @@ from flask_login import LoginManager
 from config import Config
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+import paypalrestsdk
 
 
 app = Flask(__name__)
@@ -24,6 +25,72 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 whooshee = Whooshee()
 whooshee.init_app(app)
+paypalrestsdk.configure({
+  "mode": 'sandbox',
+  "client_id": app.config.PAYPAL_CREDENTIALS['id'],
+  "client_secret": app.config.PAYPAL_CREDENTIALS['secret'] 
+  })
+
+
+@app.before_first_request
+def init_plans():
+    from paypalrestsdk import BillingPlan
+
+    pro_plan = BillingPlan({
+        "name": "Pro subscription plan",
+        "description": "Gives you private researches, ability to scrape Play store and many other features",
+        "type": "INFINITE",
+        "payment_definitions": [{
+            "name": "Pro Plan",
+            "type": "REGULAR",
+            "frequency_interval": "1",
+            "frequency": "MONTH",
+            "cycles": "12",
+            "amount": {
+                "currency": "USD",
+                "value": "15"
+            }
+        }],
+        "merchant_preferences": {
+            "auto_bill_amount": "yes",
+            "cancel_url": "http://localhost:5080/payment/pro/cancel",
+            "initial_fail_amount_action": "continue",
+            "max_fail_attempts": "0",
+            "return_url": "http://localhost:5080/payment/pro/execute",
+            "setup_fee": {
+                "currency": "USD",
+                "value": "1"
+            }
+        }
+    })
+    
+    premium_plan = BillingPlan({
+        "name": "Premium subscription plan",
+        "description": "Subscription which lets you work without any limitations",
+        "type": "INFINITE",
+        "payment_definitions": [{
+            "name": "Pro Plan",
+            "type": "REGULAR",
+            "frequency_interval": "1",
+            "frequency": "MONTH",
+            "cycles": "12",
+            "amount": {
+                "currency": "USD",
+                "value": "15"
+            }
+        }],
+        "merchant_preferences": {
+            "auto_bill_amount": "yes",
+            "cancel_url": "http://localhost:5080/payment/premium/cancel",
+            "initial_fail_amount_action": "continue",
+            "max_fail_attempts": "0",
+            "return_url": "http://localhost:5080/payment/premium/execute",
+            "setup_fee": {
+                "currency": "USD",
+                "value": "1"
+            }
+        }
+    })
 
 
 from app import routes, models

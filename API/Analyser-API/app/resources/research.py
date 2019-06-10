@@ -99,6 +99,31 @@ class MyResearch(Resource):
                 'message': 'Internal server error'
             }, 500
 
+        from requests import get
+        from json import loads
+
+        try:
+            response = get('http://localhost:5000/ml/api/v1.0/update/{}'.format(new_research.id)).content
+            response = loads(response)
+            
+            if response['done'] == False:
+                return {
+                    "message": "Internal server error"
+                }, 500
+
+            current_res = Research.find_by_id(res_id)
+            itters = ConductedResearch.query.filter_by(researchId=res_id).all()
+            
+            current_res.conducted.append(itters[-1])
+            db.session.add(itters[-1])
+            db.session.commit()
+
+        except Exception as e:
+            return {
+                'response': False,
+                'message': e
+            }
+
         return {
             'response': True,
             'id': new_research.id,
@@ -950,7 +975,8 @@ class ResearchSearch(Resource):
 
             for r in search.related:
                 result['related'].append(r.topic)
-        except:
+        except Exception as e:
+            print('\n\n\n',e,'\n\n\n')
             result = {
                 "message": "Internal error or no instances in database"
             }

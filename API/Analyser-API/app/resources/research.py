@@ -192,9 +192,7 @@ class MyResearch(Resource):
                 "message": "You don't have permission to edit this research"
             }, 400
         
-        response = get('http://localhost:5000/ml/api/v1.0/update/{}'.format(res_id)).content
-        print(response)
-        response = loads(response)
+        response = req('http://localhost:5000/ml/api/v1.0/update?res_id={}'.format(new_research.id)).json()
         
         if response['done'] == False:
             return {

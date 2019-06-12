@@ -1,11 +1,12 @@
 from sanic.response import json
 from app import app
+import os
 
 
-@app.route("/favicon.ico")
-async def favicon(request):
-    return ""
-
+STATIC_FOLDER = os.path.join(os.path.dirname(__file__), 'static\\')
+app.static('/static', STATIC_FOLDER)
+app.static('/favicon.ico', os.path.join(STATIC_FOLDER, 'img', 'favicon.ico'))
+print(STATIC_FOLDER)
 
 @app.route("/scraper/api/v1.0/data/twitter")
 async def twiter(request):

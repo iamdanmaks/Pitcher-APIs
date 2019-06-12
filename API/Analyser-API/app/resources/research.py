@@ -44,7 +44,7 @@ class MyResearch(Resource):
         current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
         new_research = Research()
-
+        print(new_research.id)
         try:
             new_research.topic = data.get('topic')
             new_research.description = data.get('description')
@@ -57,7 +57,6 @@ class MyResearch(Resource):
                 new_research.keywords.append(new_keyword)
                 db.session.add(new_keyword)
             
-            print('\n\n\n',data.get('modules'),'\n\n\n')
             for module in data.get('modules'):
                 new_module = ResearchModule(
                     module=module,
@@ -93,6 +92,7 @@ class MyResearch(Resource):
             db.session.commit()
         
         except Exception as e:
+            print(e)
             return {
                 'response': False,
                 'message': 'Internal server error'
@@ -101,8 +101,8 @@ class MyResearch(Resource):
         from requests import get as req
 
         try:
-            response = req('http://localhost:5000/ml/api/v1.0/update/{}'.format(new_research.id)).json()
-            print(response)
+            print(new_research.id)
+            response = req('http://localhost:5000/ml/api/v1.0/update?res_id={}'.format(new_research.id)).json()
             if response['done'] == False:
                 return {
                     "message": "Internal server error"
@@ -120,7 +120,7 @@ class MyResearch(Resource):
             return {
                 'response': False,
                 'message': str(e)
-            }
+            }, 404
 
         return {
             'response': True,
@@ -841,14 +841,14 @@ class ResearchTwitter(Resource):
             stop_words = set(stopwords.words('english')).union(set(stopwords.words("russian")))
             text = ' '.join([t.text.lower() for t in tweets])
 
-            wordscount = {}
+            wordcount = {}
 
             for word in text.split():
                 if word not in stop_words or word not in ['the', 'a', 'an', 'and']:
                     if word not in wordcount:
-                        wordscount[word] = 1
+                        wordcount[word] = 1
                     else:
-                        wordscount[word] += 1
+                        wordcount[word] += 1
 
             from collections import Counter
 
@@ -870,7 +870,8 @@ class ResearchTwitter(Resource):
                 'tweets': [{'url': t.source, 'sentiment': t.sentimentScore} for t in tweets]
             }
         
-        except:
+        except Exception as e:
+            print(e)
             return {
                 "message": "Internal server error or no research"
             }
@@ -883,17 +884,17 @@ class ResearchNews(Resource):
             res = Research.find_by_id(request.args.get('research_id'))
             itter = res.conducted[-1].news[0]
 
-            articles = itter.articles
+            articles = itter.news_list
 
             sentiment = {
-                'positive_percent': (itter.pos_count / itter.amount) * 100,
-                'negative_percent': (itter.neg_count / itter.amount) * 100,
-                'neutral_percent': ((itter.amount - itter.pos_count - itter.neg_count) / itter.amount) * 100
+                'positive_percent': (itter.pos_count_general / itter.amount) * 100,
+                'negative_percent': (itter.neg_count_general / itter.amount) * 100,
+                'neutral_percent': ((itter.amount - itter.pos_count_general - itter.neg_count_general) / itter.amount) * 100
             }
 
             news_art = [{
-                    'source': a.source.split('||')[0],
-                    'source_url': a.source.split('||')[1],
+                    'source': a.source.split('||')[1],
+                    'source_url': a.source.split('||')[0],
                     'title': a.title,
                     'url': a.link
                 } for a in articles]
@@ -907,14 +908,14 @@ class ResearchNews(Resource):
             stop_words = set(stopwords.words('english')).union(set(stopwords.words("russian")))
             text = ' '.join([t.text.lower() for t in articles])
 
-            wordscount = {}
+            wordcount = {}
 
             for word in text.split():
                 if word not in stop_words or word not in ['the', 'a', 'an', 'and']:
                     if word not in wordcount:
-                        wordscount[word] = 1
+                        wordcount[word] = 1
                     else:
-                        wordscount[word] += 1
+                        wordcount[word] += 1
 
             from collections import Counter
 
@@ -926,7 +927,8 @@ class ResearchNews(Resource):
                 'sentiment': sentiment
             }
 
-        except:
+        except Exception as e:
+            print(e)
             return {
                 "message": "No news or internal error"
             }
@@ -937,9 +939,11 @@ class ResearchSearch(Resource):
         from datetime import datetime, timedelta
         from flask import request
         search = Research.find_by_id(request.args.get('research_id')).search[0]
-        start = request.args.get('start')
-        end = request.args.get('end')
+        start = request.args.get('start', None)
+        end = request.args.get('end', None)
 
+        print(start)
+        print(end)
         try:
             result = {
                 'popularity': [],
@@ -955,11 +959,11 @@ class ResearchSearch(Resource):
                     }
                 )
             
-            if start is not None:
+            if start != None:
                 start = datetime.strptime(start, '%d.%m.%Y')
                 result['popularity'] = [x for x in result['popularity'] if x.creationDate >= start]
 
-            if end is None:
+            if end != None:
                 end = datetime.strptime(end, '%d.%m.%Y') + timedelta(days=1)
                 result['popularity'] = [x for x in result['popularity'] if x.creationDate <= start]
 

@@ -490,7 +490,7 @@ class NewsArticle(db.Model):
         primary_key=True
     )
     title = db.Column(db.String(200))
-    text = db.Column(db.String(16000000))
+    text = db.Column(db.Text)
     source = db.Column(db.Text)
     sentimentScore = db.Column(db.Float)
 

@@ -9,10 +9,13 @@ def index():
     return "pitcher"
 
 
-@app.route('/ml/api/v1.0/update/<int:res_id>', methods=['GET'])
-def update(res_id):
+@app.route('/ml/api/v1.0/update', methods=['GET'])
+def update():
     from datetime import datetime
+    from flask import request
+    res_id = int(request.args.get('res_id'))
 
+    print(res_id)
     current_research = Research.query.filter_by(id=res_id).first()
     keywords = ResearchKeyword.query.filter_by(
         researchId=res_id).all()
@@ -29,6 +32,8 @@ def update(res_id):
     itter.date = datetime.now()
     itter.researchId = res_id
     
+
+    print(modules)
     if 'play_store' in modules:
         if current_research.appId is None:
             itter.play_store.append(upd.update_play_store(itter, current_research.algos, 

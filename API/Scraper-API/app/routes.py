@@ -130,7 +130,7 @@ async def news(request):
     final_dict = {'response': False, 'message': 'arguments are missing', 'results': []}
 
     try:
-        topic = request.args['topic'][0]
+        topic = request.args['topic'][0].split(' ')[0]
         print(topic)
         lang = request.args['lang'][0]
     except:
@@ -143,7 +143,7 @@ async def news(request):
     from feedparser import parse
     from newspaper import Article
 
-    feed = parse('https://news.google.com/rss/search?q={0}&hl=en&gl=RU&ceid=US:en'.format(topic, lang))
+    feed = parse('https://news.google.com/rss/search?q={0}&hl=en-US&gl=US&ceid=US:en'.format(topic, lang))
     print(feed)
     for entry in feed.entries[:10]:
         print(entry)

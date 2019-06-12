@@ -2,7 +2,7 @@ from flask_restful import Resource
 from flask_jwt_extended import (create_access_token, create_refresh_token, 
     jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
 from app.resources.request_parser import (reg_parser, login_parser, 
-    followers_parser, update_user_parser)
+    followers_parser, update_user_parser, agreement)
 from app.models import User, RevokedTokenModel
 
 '''
@@ -437,21 +437,201 @@ class SecretResource(Resource):
         }
 
 
-class PaymentPro(Resource):
+class InitPayment(Resource):
+    
+    def get(self):
+        from flask import request
+        from datetime import datetime
+        from paypalrestsdk import BillingAgreement
+        from app import app
+        from flask import redirect
+
+        now = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        billing_agreement = None
+
+        if request.args.get('sub') == 'pro':
+            billing_agreement = BillingAgreement({
+                "name": "Pro Agreement",
+                "description": "- up to 5 updates get saved;\n-Play store researches;\n-News researches;",
+                "start_date": now,
+                "plan": {
+                    "id": app.config['PRO']
+                },
+                "payer": {
+                    "payment_method": "paypal"
+                }
+            })
+        
+        else:
+            billing_agreement = BillingAgreement({
+                "name": "Premium Agreement",
+                "description": "- unlimited updates;\n- all the modules;",
+                "start_date": now,
+                "plan": {
+                    "id": app.config['PREMIUM']
+                },
+                "payer": {
+                    "payment_method": "paypal"
+                }
+            })
+
+        if billing_agreement.create():
+            print(billing_agreement.links)
+            for link in billing_agreement.links:
+                if link.method == "REDIRECT":
+                    redirect_url = str(link.href)
+
+                    return redirect(redirect_url)
+        else:
+            print(billing_agreement.error)
+
+
+class ExecuteProPayment(Resource):
+    def get(self):
+        from flask import request
+        from paypalrestsdk import BillingAgreement
+
+        token = request.args.get('token')
+        billing_agreement_response = BillingAgreement.execute(token)
+        print("BillingAgreement[%s] executed successfully" % (billing_agreement_response.id))
+
+        return redirect('http://localhost:4200/paypal_redirect?done={}&type={}&id={}'.format(
+            1, 'pro', billing_agreement_response.id
+        ))
+    
+    @jwt_required
     def post(self):
-        pass
+        data = agreement.parse_args()
+        agr_id = data.get('agreement_id')
+
+        current_username = get_jwt_identity()['username']
+        current_user = User.find_by_username(current_username)
+
+        current_user.agreementId = agr_id
+        current_user.subType = 'pro'
+        current_user.save_to_db()
+
+        access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
+        refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
+    
+    @jwt_required
+    def delete(self):
+        data = agreement.parse_args()
+        agr_id = data.get('agreement_id')
+
+        current_username = get_jwt_identity()['username']
+        current_user = User.find_by_username(current_username)
+
+        from paypalrestsdk import BillingAgreement
+        import logging
+
+        try:
+            billing_agreement = BillingAgreement.find(agr_id)
+            print("Billing Agreement [%s] has state %s" %
+                (billing_agreement.id, billing_agreement.state))
+
+            cancel_note = {"note": "Canceling the agreement"}
+
+            if billing_agreement.cancel(cancel_note):    
+                billing_agreement = BillingAgreement.find(BILLING_AGREEMENT_ID)
+                print("Billing Agreement [%s] has state %s" %
+                (billing_agreement.id, billing_agreement.state))
+
+            else:
+                print(billing_agreement.error)
+
+        except ResourceNotFound as error:
+            print("Billing Agreement Not Found")
+        
+        current_user.agreementId = ''
+        current_user.subType = 'basic'
+        current_user.save_to_db()
+
+        access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
+        refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
 
 
-class ExecutePro(Resource):
+class ExecutePremiumPayment(Resource):
+    def get(self):
+        from flask import request, redirect
+        from paypalrestsdk import BillingAgreement
+
+        token = request.args.get('token')
+        billing_agreement_response = BillingAgreement.execute(token)
+        print("BillingAgreement[%s] executed successfully" % (billing_agreement_response.id))
+
+        return redirect('http://localhost:4200/paypal_redirect?done={}&type={}&id={}'.format(
+            1, 'premium', billing_agreement_response.id
+        ))
+
+    @jwt_required
     def post(self):
-        pass
+        data = agreement.parse_args()
+        agr_id = data.get('agreement_id')
 
+        current_username = get_jwt_identity()['username']
+        current_user = User.find_by_username(current_username)
 
-class PaymentPremium(Resource):
-    def post(self):
-        pass
+        current_user.agreementId = agr_id
+        current_user.subType = 'premium'
+        current_user.save_to_db()
 
+        access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
+        refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
 
-class ExecutePremium(Resource):
-    def post(self):
-        pass
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
+
+    @jwt_required
+    def delete(self):
+        data = agreement.parse_args()
+        agr_id = data.get('agreement_id')
+
+        current_username = get_jwt_identity()['username']
+        current_user = User.find_by_username(current_username)
+
+        from paypalrestsdk import BillingAgreement
+        import logging
+
+        try:
+            billing_agreement = BillingAgreement.find(agr_id)
+            print("Billing Agreement [%s] has state %s" %
+                (billing_agreement.id, billing_agreement.state))
+
+            cancel_note = {"note": "Canceling the agreement"}
+
+            if billing_agreement.cancel(cancel_note):    
+                billing_agreement = BillingAgreement.find(agr_id)
+                print("Billing Agreement [%s] has state %s" %
+                (billing_agreement.id, billing_agreement.state))
+
+            else:
+                print(billing_agreement.error)
+
+        except ResourceNotFound as error:
+            print("Billing Agreement Not Found")
+        
+        current_user.agreementId = ''
+        current_user.subType = 'basic'
+        current_user.save_to_db()
+
+        access_token = create_access_token(identity = {'username': user.username, 'subscription': user.subType})
+        refresh_token = create_refresh_token(identity = {'username': user.username, 'subscription': user.subType})
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }

@@ -9,7 +9,7 @@ from flask_login import LoginManager
 from config import Config
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-#import paypalrestsdk
+import paypalrestsdk
 
 
 app = Flask(__name__)
@@ -25,11 +25,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 whooshee = Whooshee()
 whooshee.init_app(app)
-'''
+
 paypalrestsdk.configure({
   "mode": 'sandbox',
-  "client_id": app.config.PAYPAL_CREDENTIALS['id'],
-  "client_secret": app.config.PAYPAL_CREDENTIALS['secret'] 
+  "client_id": app.config['PAYPAL_CREDENTIALS']['id'],
+  "client_secret": app.config['PAYPAL_CREDENTIALS']['secret'] 
   })
 
 
@@ -46,10 +46,9 @@ def init_plans():
             "type": "REGULAR",
             "frequency_interval": "1",
             "frequency": "MONTH",
-            "cycles": "12",
             "amount": {
                 "currency": "USD",
-                "value": "15"
+                "value": "1"
             }
         }],
         "merchant_preferences": {
@@ -65,6 +64,20 @@ def init_plans():
         }
     })
 
+    if pro_plan.create():
+        print("Billing Plan [%s] created successfully (pro)" % pro_plan.id)
+
+        if pro_plan.activate():
+            pro_plan = BillingPlan.find(pro_plan.id)
+            print("Billing Plan [%s] state changed to %s (pro)" % (pro_plan.id, pro_plan.state))
+            app.config['PRO'] = pro_plan.id
+        
+        else:
+            print(pro_plan.error)
+        
+    else:
+        print(pro_plan.error)
+
     premium_plan = BillingPlan({
         "name": "Premium subscription plan",
         "description": "Subscription which lets you work without any limitations",
@@ -74,10 +87,9 @@ def init_plans():
             "type": "REGULAR",
             "frequency_interval": "1",
             "frequency": "MONTH",
-            "cycles": "12",
             "amount": {
                 "currency": "USD",
-                "value": "15"
+                "value": "2"
             }
         }],
         "merchant_preferences": {
@@ -92,7 +104,21 @@ def init_plans():
             }
         }
     })
-'''
+
+    if premium_plan.create():
+        print("Billing Plan [%s] created successfully (premium)" % premium_plan.id)
+
+        if premium_plan.activate():
+            premium_plan = BillingPlan.find(premium_plan.id)
+            print("Billing Plan [%s] state changed to %s (premium)" % (premium_plan.id, premium_plan.state))
+            app.config['PREMIUM'] = premium_plan.id
+        
+        else:
+            print(premium_plan.error)
+        
+    else:
+        print(premium_plan.error)
+
 
 from app import routes, models
 from app.resources import user, research
@@ -127,3 +153,6 @@ api.add_resource(research.ResearchSearch, '/research/search')
 api.add_resource(research.ResearchPlayStore, '/research/play_store')
 api.add_resource(research.ResearchTwitter, '/research/twitter')
 api.add_resource(research.ResearchNews, '/research/news')
+api.add_resource(user.InitPayment, '/subscribe')
+api.add_resource(user.ExecuteProPayment, '/payment/pro/execute')
+api.add_resource(user.ExecutePremiumPayment, '/payment/premium/execute')

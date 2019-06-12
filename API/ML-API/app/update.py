@@ -187,7 +187,8 @@ def update_trends(res_id, clf, query, lang, reg):
         db.session.delete(q)
         search.rising.remove(q)
 
-    for countries, interests in loads(data['result']['countries']).items():
+    print(data['result']['countries'])
+    for countries, interests in data['result']['countries'].items():
         try:
             cntr = CountryInterest(
                 country=countries,

@@ -57,7 +57,6 @@ def update(res_id):
         print('search updated')
 
     try:
-        current_research.conducted.append(itter)
         db.session.add(itter)
         db.session.commit()
     except Exception as e:

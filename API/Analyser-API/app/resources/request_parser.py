@@ -28,11 +28,8 @@ subscriptions_likes_parser = reqparse.RequestParser()
 subscriptions_likes_parser.add_argument('research_id', type=int, help='This field cannot be blank', required=True)
 
 
-research_filters = reqparse.RequestParser()
-research_filters.add_argument('sort_way', type=str)
-research_filters.add_argument('start_date', type=str)
-research_filters.add_argument('end_date', type=str)
-research_filters.add_argument('modules', type=str, action='append')
+agreement = reqparse.RequestParser()
+agreement.add_argument('agreement_id', type=str)
 
 
 create_research = reqparse.RequestParser()

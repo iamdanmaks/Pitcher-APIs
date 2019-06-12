@@ -78,6 +78,8 @@ class User(db.Model, UserMixin):
     avatar_ = db.Column(db.String(300))
     isCompany = db.Column(db.Boolean(), nullable=False, server_default='0')
     subType = db.Column(db.String(20))
+    listOfModules = db.Column(db.String(100))
+    agreementId = db.Column(db.String(50))
     
     my_researches = db.relationship(
         'UserResearchPermission',

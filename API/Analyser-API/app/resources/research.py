@@ -4,8 +4,7 @@ from flask_jwt_extended import (jwt_required, get_jwt_identity)
 from app.models import (User, Research, ResearchKeyword, 
     ResearchModule, ConductedResearch, SearchTrends, Analyzer, 
     UserResearchPermission, likes, subscriptions)
-from app.resources.request_parser import (research_filters, 
-    create_research, subscriptions_likes_parser)
+from app.resources.request_parser import (create_research, subscriptions_likes_parser)
 
 
 def get_paginated_list(results, url, start, limit):
@@ -44,9 +43,9 @@ class MyResearch(Resource):
         
         current_username = get_jwt_identity()['username']
         current_user = User.find_by_username(current_username)
+        new_research = Research()
 
         try:
-            new_research = Research()
             new_research.topic = data.get('topic')
             new_research.description = data.get('description')
 
@@ -99,29 +98,28 @@ class MyResearch(Resource):
                 'message': 'Internal server error'
             }, 500
 
-        from requests import get
-        from json import loads
+        from requests import get as req
 
         try:
-            response = get('http://localhost:5000/ml/api/v1.0/update/{}'.format(new_research.id)).content
-            response = loads(response)
-            
+            response = req('http://localhost:5000/ml/api/v1.0/update/{}'.format(new_research.id)).json()
+            print(response)
             if response['done'] == False:
                 return {
                     "message": "Internal server error"
                 }, 500
-
-            current_res = Research.find_by_id(res_id)
-            itters = ConductedResearch.query.filter_by(researchId=res_id).all()
             
-            current_res.conducted.append(itters[-1])
+
+            itters = ConductedResearch.query.filter_by(researchId=new_research.id).all()
+            
+            new_research.conducted.append(itters[-1])
             db.session.add(itters[-1])
             db.session.commit()
+            print('commit')
 
         except Exception as e:
             return {
                 'response': False,
-                'message': e
+                'message': str(e)
             }
 
         return {

@@ -255,14 +255,12 @@ class MyResearches(Resource):
             }
 
         if request.args.get('sort_way') is None or request.args.get('sort_way') == 'creation':
-            result = Research.query.whooshee_search(
-                keyword).order_by(
+            result = Research.query.order_by(
                     desc(Research.creationDate)).all()[::-1]
         
         elif request.args.get('sort_way') == 'last_update':
             from app import db
-            result = Research.query.whooshee_search(
-                keyword).all()
+            result = Research.query.all()
             result = sorted(
                 result,
                 key=lambda x: db.session.query(
@@ -276,8 +274,7 @@ class MyResearches(Resource):
             )
 
         elif request.args.get('sort_way') == 'views':
-            result = Research.query.whooshee_search(
-                keyword).order_by(
+            result = Research.query.order_by(
                     Research.views.desc()).all()
             result = sorted(
                 result, 
@@ -287,8 +284,7 @@ class MyResearches(Resource):
         
         elif request.args.get('sort_way') == 'popularity':
             from app import db
-            result = Research.query.whooshee_search(
-                keyword).all()
+            result = Research.query.all()
             result = sorted (
                 result, 
                 key=lambda x: len(db.session.query(likes).filter(likes.c.research_id == x.id).all()), 
@@ -297,8 +293,7 @@ class MyResearches(Resource):
 
         elif request.args.get('sort_way') == 'subscribers':
             from app import db
-            result = Research.query.whooshee_search(
-                keyword).all()
+            result = Research.query.all()
             result = sorted (
                 result, 
                 key=lambda x: len(db.session.query(subscriptions).filter(subscriptions.c.research_id == x.id).all()), 

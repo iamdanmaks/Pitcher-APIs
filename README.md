@@ -272,7 +272,7 @@ Analyser-API endpoints:
     ```
 15. Поиск исследований (метод **GET**)
 
-    Получаешь по ссылке, где все параметры необязательны кроме **keyword**: http://localhost:5080/research/search?keyword={}&sorting=creation/last_update/views/popularity/subscribers&start_date={dd.mm.YYYY}&end_date={dd.mm.YYYY}&analyser=vader/polyglot&isCompany=0/1&modules=play_store/search/twitter/news
+    Получаешь по ссылке, где все параметры необязательны кроме **keyword**: http://localhost:5080/research/search?keyword={}&sort_way=creation/last_update/views/popularity/subscribers&start_date={dd.mm.YYYY}&end_date={dd.mm.YYYY}&analyser=vader/polyglot&isCompany=0/1&modules=play_store/search/twitter/news
     
     Чтобы использовать пагинацию передавайте ещё параметры start, limit. Если не передашь, то start = 1, limit = 20.
     

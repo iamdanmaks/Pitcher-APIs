@@ -635,3 +635,41 @@ class ExecutePremiumPayment(Resource):
             "access_token": access_token,
             "refresh_token": refresh_token
         }
+
+    
+class UserInfo(Resource):
+    @jwt_required
+    def get(self):
+        from app import db
+        from app.models import likes, followers, subscriptions, UserResearchPermission, Research
+
+        current_username = get_jwt_identity()['username']
+        current_user = User.find_by_username(current_username)
+
+        compId = db.session.query(followers.c.follower_id).filter(followers.c.followed_id == current_user.id).first()
+        compName = ''
+        if compId != None:
+            compName = User.find_by_id(compId)
+
+        return {
+            'id': current_user.id,
+            'username': current_user.username,
+            'fullname': current_user.fullname,
+            'subType': current_user.subType,
+            'created': len(Research.query.filter_by(ownerId=current_user.id).all()),
+            'bio': current_user.bio,
+            'liked': len(db.session.query(subscriptions).filter(subscriptions.c.user_id == current_user.id).all()),
+            'subscriptions': len(db.session.query(subscriptions).filter(subscriptions.c.user_id == current_user.id).all()),
+            'isCompany': current_user.isCompany,
+            'employed': compName,
+            'online': current_user.active,
+            'myResearches': [x.researchId for x in UserResearchPermission.query.filter_by(userId=current_user.id).all()],
+            'subscribed': db.session.query(subscriptions.c.research_id).filter(subscriptions.c.user_id == current_user.id).all(),
+            'avatar': 'https://pitcher-api.herokuapp.com/static/{}.jpg'.format(current_user.username)
+        }
+
+    @jwt_refresh_token_required
+    def post(self):
+        pass
+
+    

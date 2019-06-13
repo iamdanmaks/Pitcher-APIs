@@ -130,6 +130,7 @@ def check_if_token_in_blacklist(decrypted_token):
 
 api.add_resource(user.UserRegistration, '/registration')
 api.add_resource(user.UserLogin, '/login')
+api.add_resource(user.UserInfo, '/user/info')
 api.add_resource(user.OAuthAuthorize, '/oauth/login')
 api.add_resource(user.OAuthFacebookCallback, '/oauth/facebook/callback')
 api.add_resource(user.OAuthGoogleCallback, '/oauth/google/callback')
@@ -154,3 +155,5 @@ api.add_resource(research.ResearchNews, '/research/news')
 api.add_resource(user.InitPayment, '/subscribe')
 api.add_resource(user.ExecuteProPayment, '/payment/pro/execute')
 api.add_resource(user.ExecutePremiumPayment, '/payment/premium/execute')
+api.add_resource(research.ResearchList, '/research/list')
+api.add_resource(research.SignedInResearches, '/research/current')

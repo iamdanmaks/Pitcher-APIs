@@ -143,7 +143,8 @@ class MyResearch(Resource):
 
         research = Research.find_by_id(int(request.args.get('res_id')))
         owner = User.find_by_id(research.ownerId)
-
+        last = None
+        
         try:
             last = db.session.query(
                         ConductedResearch.date

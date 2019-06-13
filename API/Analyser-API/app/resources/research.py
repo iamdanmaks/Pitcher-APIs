@@ -12,27 +12,35 @@ def get_paginated_list(results, url, start, limit):
     limit = int(limit)
     count = len(results)
     if count < start or limit < 0:
-        abort(404)
+        return {
+            'results': [],
+            'start': 0,
+            'limit': 0,
+            'count': 0
+        }
     
     obj = {}
     obj['start'] = start
     obj['limit'] = limit
     obj['count'] = count
     
-    if start == 1:
+    if start == 1 or count == 0:
         obj['previous'] = ''
     else:
         start_copy = max(1, start - limit)
         limit_copy = start - 1
         obj['previous'] = url + '?start=%d&limit=%d' % (start_copy, limit_copy)
     
-    if start + limit > count:
+    if start + limit > count or count == 0:
         obj['next'] = ''
     else:
         start_copy = start + limit
         obj['next'] = url + '?start=%d&limit=%d' % (start_copy, limit)
     
-    obj['results'] = results[(start - 1):(start - 1 + limit)]
+    if count != 0:
+        obj['results'] = results[(start - 1):(start - 1 + limit)]
+    else:
+        obj['results'] = []
     return obj
 
 
@@ -321,11 +329,31 @@ class MyResearches(Resource):
         if request.args.get('analyser') is not None:
             result = [x for x in result if x.algos == request.args.get('analyser')]
 
+        limit = 20
+        try:
+            limit = int(request.args.get('limit'))
+        except Exception as e:
+            limit = 20
+            print(e)
+
+        start = 1
+        try:
+            start = int(request.args.get('start'))
+        except Exception as e:
+            start = 1
+            print(e)
+
+        res = []
+        try:
+            res = list(map(lambda x: to_json(x), result))
+        except Exception as e:
+            res = []
+
         return get_paginated_list(
-            list(map(lambda x: to_json(x), result)), 
+            res, 
             '/research/my', 
-            start=request.args.get('start', 1), 
-            limit=request.args.get('limit', 20)
+            start=start, 
+            limit=limit
         )
 
 
@@ -492,7 +520,7 @@ class SearchResearches(Resource):
         if keyword is None or keyword == '' or len(keyword) <= 3:
             result = Research.query.all()[::-1]
 
-        elif request.args.get('sort_way') is None or request.args.get('sort_way') == 'creation':
+        elif request.args.get('sort_way') is None or request.args.get('sort_way') == 'creation' or request.args.get('sort_way') == '':
             result = Research.query.whooshee_search(
                 keyword).filter(Research.type_of_research == True).order_by(
                     desc(Research.creationDate)).all()[::-1]

@@ -159,8 +159,8 @@ class MyResearch(Resource):
                 'id': research.id,
                 'topic': research.topic,
                 'description': research.description,
-                'creation': research.creationDate.strftime('%d.%m.%Y'),
-                'last_update': last,
+                'creation': str(research.creationDate.strftime('%d.%m.%Y')),
+                'last_update': str(last),
                 'views': research.views,
                 'owner': {
                     'id': owner.id,

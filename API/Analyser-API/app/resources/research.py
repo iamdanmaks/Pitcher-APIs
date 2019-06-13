@@ -151,7 +151,7 @@ class MyResearch(Resource):
                         ConductedResearch.researchId == research.id
                     ).order_by(
                         desc(ConductedResearch.date)
-                    ).first()[0]
+                    ).first()[0].strftime('%d.%m.%Y')
         except:
             last = research.creationDate.strftime('%d.%m.%Y')
 

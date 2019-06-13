@@ -794,7 +794,7 @@ class ResearchViews(Resource):
 class ResearchPlayStore(Resource):
     def get(self):
         from flask import request
-        res = Research.find_by_id(int(request.args.get('research_id')))
+        res = Research.find_by_id(int(request.args.get('res_id')))
         
         def to_json(x):
             return {
@@ -837,7 +837,7 @@ class ResearchTwitter(Resource):
         try:
             from flask import request
             import pandas as pd
-            res = Research.find_by_id(request.args.get('research_id'))
+            res = Research.find_by_id(request.args.get('res_id'))
             itter = res.conducted[-1].twitter[0]
 
             tweets = itter.tweets
@@ -903,7 +903,7 @@ class ResearchNews(Resource):
     def get(self):
         from flask import request
         try:
-            res = Research.find_by_id(request.args.get('research_id'))
+            res = Research.find_by_id(request.args.get('res_id'))
             itter = res.conducted[-1].news[0]
 
             articles = itter.news_list
@@ -960,7 +960,7 @@ class ResearchSearch(Resource):
     def get(self):
         from datetime import datetime, timedelta
         from flask import request
-        search = Research.find_by_id(request.args.get('research_id')).search[0]
+        search = Research.find_by_id(request.args.get('res_id')).search[0]
         start = request.args.get('start', None)
         end = request.args.get('end', None)
 

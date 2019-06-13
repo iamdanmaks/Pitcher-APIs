@@ -849,9 +849,9 @@ class ResearchTwitter(Resource):
             timeline = dict(zip(timeline.index.format(), timeline))
 
             sentiment = {
-                'positive_percent': (itter.pos_count / itter.tweetsCount) * 100,
-                'negative_percent': (itter.neg_count / itter.tweetsCount) * 100,
-                'neutral_percent': ((itter.tweetsCount - itter.pos_count - itter.neg_count) / itter.tweetsCount) * 100
+                'positive_percent': (itter.pos_count / 201) * 100,
+                'negative_percent': (itter.neg_count / 201) * 100,
+                'neutral_percent': ((201 - itter.pos_count - itter.neg_count) / 201) * 100
             }
 
             import nltk
@@ -909,9 +909,9 @@ class ResearchNews(Resource):
             articles = itter.news_list
 
             sentiment = {
-                'positive_percent': (itter.pos_count_general / itter.amount) * 100,
-                'negative_percent': (itter.neg_count_general / itter.amount) * 100,
-                'neutral_percent': ((itter.amount - itter.pos_count_general - itter.neg_count_general) / itter.amount) * 100
+                'positive_percent': (itter.pos_count_general / 10) * 100,
+                'negative_percent': (itter.neg_count_general / 10) * 100,
+                'neutral_percent': ((itter.10 - itter.pos_count_general - itter.neg_count_general) / 10) * 100
             }
 
             news_art = [{

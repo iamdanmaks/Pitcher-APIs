@@ -911,7 +911,7 @@ class ResearchNews(Resource):
             sentiment = {
                 'positive_percent': (itter.pos_count_general / 10) * 100,
                 'negative_percent': (itter.neg_count_general / 10) * 100,
-                'neutral_percent': ((itter.10 - itter.pos_count_general - itter.neg_count_general) / 10) * 100
+                'neutral_percent': ((10 - itter.pos_count_general - itter.neg_count_general) / 10) * 100
             }
 
             news_art = [{

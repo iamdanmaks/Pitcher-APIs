@@ -23,4 +23,4 @@ Werkzeug==0.14.1
 Pillow==6.0.0
 beautifulsoup4==4.7.1
 vaderSentiment==3.2.1
-flask-cors==3.0.7
+flask-cors==3.0.9

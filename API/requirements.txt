@@ -7,7 +7,7 @@ polyglot==16.7.4
 play_scraper==0.5.4
 rauth==0.7.3
 flask_optimize==0.2.9.8
-sanic==18.12.0
+sanic==20.12.7
 Flask_Login==0.4.1
 twitterscraper==0.9.3
 Flask==0.12.2
